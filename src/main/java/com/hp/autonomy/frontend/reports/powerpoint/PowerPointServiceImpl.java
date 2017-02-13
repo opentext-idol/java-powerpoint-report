@@ -94,7 +94,7 @@ import static com.hp.autonomy.frontend.reports.powerpoint.dto.ListData.Document;
 import static com.hp.autonomy.frontend.reports.powerpoint.dto.MapData.Marker;
 import static org.apache.poi.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
 
-public class PowerPointServiceImpl {
+public class PowerPointServiceImpl implements PowerPointService {
 
     private final TemplateSource pptxTemplate;
 
@@ -115,6 +115,7 @@ public class PowerPointServiceImpl {
         }
     }
 
+    @Override
     public XMLSlideShow topicmap(
             final TopicMapData data
     ) throws SlideShowTemplate.LoadException {
@@ -183,8 +184,9 @@ public class PowerPointServiceImpl {
         }
     }
 
+    @Override
     public XMLSlideShow sunburst(
-        final SunburstData data
+            final SunburstData data
     ) throws SlideShowTemplate.LoadException {
         if(!data.validateInput()) {
             throw new IllegalArgumentException("Number of values should match the number of categories");
@@ -269,6 +271,7 @@ public class PowerPointServiceImpl {
         }
     }
 
+    @Override
     public XMLSlideShow table(
             final String title,
             final TableData tableData
@@ -352,6 +355,7 @@ public class PowerPointServiceImpl {
         table.setAnchor(new Rectangle2D.Double(anchor.getMinX() + 0.5 * (availWidth - width), anchor.getMinY(), width, Math.min(tableH, anchor.getHeight())));
     }
 
+    @Override
     public XMLSlideShow map(
             final String title,
             final MapData map
@@ -492,6 +496,7 @@ public class PowerPointServiceImpl {
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), a);
     }
 
+    @Override
     public XMLSlideShow list(
             final String results,
             final String sortBy,
@@ -690,8 +695,9 @@ public class PowerPointServiceImpl {
         return summary;
     }
 
+    @Override
     public XMLSlideShow graph(
-        final DategraphData data
+            final DategraphData data
     ) throws SlideShowTemplate.LoadException {
         final SlideShowTemplate template = loadTemplate();
         final XMLSlideShow ppt = template.getSlideShow();
@@ -889,6 +895,7 @@ public class PowerPointServiceImpl {
         return wb;
     }
 
+    @Override
     public XMLSlideShow report(
             final ReportData report
     ) throws SlideShowTemplate.LoadException {
