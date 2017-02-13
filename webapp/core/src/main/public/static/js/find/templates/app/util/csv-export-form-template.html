@@ -1,6 +1,0 @@
-<form action="api/bi/export/csv" method="post" target="_blank">
-    <input type="hidden" name="queryRequest" value="<%-queryRequest%>">
-    <%_.each(fields, function(field) { %>
-        <input type="hidden" name="selectedFieldIds" value="<%-field%>">
-    <% }) %>
-</form>
