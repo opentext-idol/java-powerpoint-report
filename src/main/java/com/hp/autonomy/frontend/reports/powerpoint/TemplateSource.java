@@ -11,5 +11,5 @@ import java.io.InputStream;
 public interface TemplateSource {
     InputStream getInputStream() throws IOException;
 
-    TemplateSource DEFAULT = () -> TemplateSource.class.getResourceAsStream("/templates/template.pptx");
+    TemplateSource DEFAULT = () -> TemplateSource.class.getResourceAsStream("/com/hp/autonomy/frontend/reports/powerpoint/templates/template.pptx");
 }
