@@ -31,8 +31,10 @@ import javax.xml.namespace.QName;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.POIXMLDocumentPart;
+import org.apache.poi.POIXMLException;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackagePartName;
@@ -117,6 +119,9 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
         catch(IOException e) {
             throw new SlideShowTemplate.LoadException("Error while loading template", e);
+        }
+        catch(NotOfficeXmlFileException|POIXMLException e) {
+            throw new SlideShowTemplate.LoadException("File is not a valid Office PowerPoint file", e);
         }
     }
 
