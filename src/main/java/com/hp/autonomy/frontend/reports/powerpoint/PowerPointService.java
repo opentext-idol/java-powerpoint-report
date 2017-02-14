@@ -16,6 +16,8 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 
 public interface PowerPointService {
 
+    boolean validateTemplate();
+
     XMLSlideShow topicmap(TopicMapData data) throws SlideShowTemplate.LoadException;
 
     XMLSlideShow sunburst(SunburstData data) throws SlideShowTemplate.LoadException;

@@ -106,6 +106,17 @@ public class PowerPointServiceImpl implements PowerPointService {
         this(TemplateSource.DEFAULT);
     }
 
+    @Override
+    public boolean validateTemplate() {
+        try {
+            loadTemplate();
+            return true;
+        }
+        catch(SlideShowTemplate.LoadException e) {
+            return false;
+        }
+    }
+
     private SlideShowTemplate loadTemplate() throws SlideShowTemplate.LoadException {
         try(InputStream inputStream = pptxTemplate.getInputStream()) {
             return new SlideShowTemplate(inputStream);
