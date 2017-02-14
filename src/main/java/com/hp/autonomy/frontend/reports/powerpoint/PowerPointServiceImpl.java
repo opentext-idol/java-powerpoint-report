@@ -107,14 +107,8 @@ public class PowerPointServiceImpl implements PowerPointService {
     }
 
     @Override
-    public boolean validateTemplate() {
-        try {
-            loadTemplate();
-            return true;
-        }
-        catch(SlideShowTemplate.LoadException e) {
-            return false;
-        }
+    public void validateTemplate() throws SlideShowTemplate.LoadException {
+        loadTemplate();
     }
 
     private SlideShowTemplate loadTemplate() throws SlideShowTemplate.LoadException {
