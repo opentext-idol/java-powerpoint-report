@@ -17,14 +17,14 @@
     <inceptionYear>2017</inceptionYear>
 
     <scm>
-        <connection>scm:git:git@github.com:hpautonomy/powerpoint-report.git</connection>
-        <developerConnection>scm:git:git@github.com:hpautonomy/powerpoint-report.git</developerConnection>
-        <url>git@github.com:hpautonomy/powerpoint-report.git</url>
+        <connection>scm:git:git@github.com:hpe-idol/java-powerpoint-report.git</connection>
+        <developerConnection>scm:git:git@github.com:hpe-idol/java-powerpoint-report.git</developerConnection>
+        <url>git@github.com:hpe-idol/java-powerpoint-report.git</url>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/hpautonomy/powerpoint-report/issues</url>
+        <url>https://github.com/hpe-idol/java-powerpoint-report/issues</url>
     </issueManagement>
 
     <build>
