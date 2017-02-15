@@ -940,9 +940,10 @@ public class PowerPointServiceImpl implements PowerPointService {
     ) throws SlideShowTemplate.LoadException {
         final SlideShowTemplate template = loadTemplate();
         final XMLSlideShow ppt = template.getSlideShow();
-        final Dimension pageSize = ppt.getPageSize();
-        double width = pageSize.getWidth();
-        double height = pageSize.getHeight();
+
+        final Rectangle2D.Double pageAnchor = createPageAnchor(ppt);
+        double width = pageAnchor.getWidth();
+        double height = pageAnchor.getHeight();
 
         final XSLFSlide slide = ppt.createSlide();
 
@@ -956,7 +957,11 @@ public class PowerPointServiceImpl implements PowerPointService {
 
         for(final ReportData.Child child : report.getChildren()) {
             final ComposableElement data = child.getData();
-            final Rectangle2D.Double anchor = new Rectangle2D.Double(width * child.getX(), height * child.getY(), width * child.getWidth(), height * child.getHeight());
+            final Rectangle2D.Double anchor = new Rectangle2D.Double(
+                    pageAnchor.getMinX() + width * child.getX(),
+                    pageAnchor.getMinY() + height * child.getY(),
+                    width * child.getWidth(),
+                    height * child.getHeight());
 
             if (child.getMargin() >= 0) {
                 final double margin = child.getMargin();
