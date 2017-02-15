@@ -15,7 +15,7 @@ public class ReportData {
     private Child[] children;
 
     @Data
-    public static class Child {
+    public static class Child extends Anchor {
         private double x, y, width = 1, height = 1;
 
         private String title;

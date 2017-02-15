@@ -5,6 +5,7 @@
 
 package com.hp.autonomy.frontend.reports.powerpoint;
 
+import com.hp.autonomy.frontend.reports.powerpoint.dto.Anchor;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ComposableElement;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.DategraphData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ListData;
@@ -99,13 +100,15 @@ import static org.apache.poi.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
 public class PowerPointServiceImpl implements PowerPointService {
 
     private final TemplateSource pptxTemplate;
+    private final TemplateSettingsSource pptxSettings;
 
-    public PowerPointServiceImpl(final TemplateSource pptxTemplate) {
+    public PowerPointServiceImpl(final TemplateSource pptxTemplate, final TemplateSettingsSource pptxSettings) {
         this.pptxTemplate = pptxTemplate;
+        this.pptxSettings = pptxSettings;
     }
 
     public PowerPointServiceImpl() {
-        this(TemplateSource.DEFAULT);
+        this(TemplateSource.DEFAULT, TemplateSettingsSource.DEFAULT);
     }
 
     @Override
@@ -125,15 +128,26 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
     }
 
+    private Rectangle2D.Double createPageAnchor(final XMLSlideShow ppt) {
+        return createPageAnchor(ppt, this.pptxSettings.getSettings().getAnchor());
+    }
+
+    private static Rectangle2D.Double createPageAnchor(final XMLSlideShow ppt, final Anchor anchor) {
+        final Dimension pageSize = ppt.getPageSize();
+        final double availW = pageSize.getWidth();
+        final double availH = pageSize.getHeight();
+
+        return new Rectangle2D.Double(availW * anchor.getX(), availH * anchor.getY(), availW * anchor.getWidth(), availH * anchor.getHeight());
+    }
+
     @Override
     public XMLSlideShow topicmap(
             final TopicMapData data
     ) throws SlideShowTemplate.LoadException {
         final XMLSlideShow ppt = loadTemplate().getSlideShow();
-        final Dimension pageSize = ppt.getPageSize();
         final XSLFSlide slide = ppt.createSlide();
 
-        addTopicMap(slide, new Rectangle2D.Double(0, 0, pageSize.getWidth(), pageSize.getHeight()), data);
+        addTopicMap(slide, createPageAnchor(ppt), data);
 
         return ppt;
     }
@@ -292,20 +306,36 @@ public class PowerPointServiceImpl implements PowerPointService {
         final String[] data = tableData.getCells();
 
         final XMLSlideShow ppt = loadTemplate().getSlideShow();
-        final Dimension pageSize = ppt.getPageSize();
-        final double pageWidth = pageSize.getWidth(), pageHeight = pageSize.getHeight();
         final XSLFSlide sl = ppt.createSlide();
 
+        final Rectangle2D.Double pageAnchor = createPageAnchor(ppt);
+
+        final double textHeight = 0.1 * pageAnchor.getHeight();
         final XSLFTextBox textBox = sl.createTextBox();
         textBox.setText(title);
         textBox.setHorizontalCentered(true);
         textBox.setTextAutofit(TextShape.TextAutofit.SHAPE);
-        final Rectangle2D.Double textBounds = new Rectangle2D.Double(0, 0.05 * pageHeight, pageWidth, 0.1 * pageHeight);
-        textBox.setAnchor(textBounds);
+        textBox.setAnchor(startingSpace(pageAnchor, textHeight));
 
-        addTable(sl, new Rectangle2D.Double(0, textBounds.getMaxY(), pageWidth, pageHeight), rows, cols, data, false);
+        addTable(sl, remainingSpace(pageAnchor, textHeight), rows, cols, data, false);
 
         return ppt;
+    }
+
+    private static Rectangle2D.Double startingSpace(final Rectangle2D.Double pageAnchor, final double space) {
+        return new Rectangle2D.Double(
+                pageAnchor.getMinX(),
+                pageAnchor.getMinY(),
+                pageAnchor.getWidth(),
+                space);
+    }
+
+    private static Rectangle2D.Double remainingSpace(final Rectangle2D.Double pageAnchor, final double usedSpace) {
+        return new Rectangle2D.Double(
+                pageAnchor.getMinX(),
+                pageAnchor.getMinY() + usedSpace,
+                pageAnchor.getWidth(),
+                Math.max(1, pageAnchor.getHeight() - usedSpace));
     }
 
     private static void addTable(final XSLFSlide slide, final Rectangle2D.Double anchor, final int rows, final int cols, final String[] data, final boolean crop) {
@@ -373,9 +403,10 @@ public class PowerPointServiceImpl implements PowerPointService {
         final String image = map.getImage();
 
         final XMLSlideShow ppt = loadTemplate().getSlideShow();
-        final Dimension pageSize = ppt.getPageSize();
-        final double pageWidth = pageSize.getWidth(), pageHeight = pageSize.getHeight();
         final XSLFSlide sl = ppt.createSlide();
+
+        final Rectangle2D.Double pageAnchor = createPageAnchor(ppt);
+        final double textHeight = 0.1 * pageAnchor.getHeight();
 
         final XSLFTextBox textBox = sl.createTextBox();
         textBox.clearText();
@@ -384,12 +415,10 @@ public class PowerPointServiceImpl implements PowerPointService {
         paragraph.addNewTextRun().setText(title);
         textBox.setHorizontalCentered(true);
         textBox.setTextAutofit(TextShape.TextAutofit.SHAPE);
-        final Rectangle2D.Double textBounds = new Rectangle2D.Double(0, 0.05 * pageHeight, pageWidth, 0.1 * pageHeight);
-        textBox.setAnchor(textBounds);
+        textBox.setAnchor(startingSpace(pageAnchor, textHeight));
 
         final XSLFPictureData picture = addPictureData(ppt, image);
-        final double offsetY = textBounds.getMaxY();
-        addMap(sl, new Rectangle2D.Double(0, offsetY, pageWidth, pageHeight - textBounds.getMaxY()), picture, map.getMarkers());
+        addMap(sl, remainingSpace(pageAnchor, textHeight), picture, map.getMarkers());
 
         return ppt;
     }
@@ -515,8 +544,8 @@ public class PowerPointServiceImpl implements PowerPointService {
         final Document[] docs = documentList.getDocs();
 
         final XMLSlideShow ppt = loadTemplate().getSlideShow();
-        final Dimension pageSize = ppt.getPageSize();
-        addList(ppt, null, new Rectangle2D.Double(0, 0, pageSize.getWidth(), pageSize.getHeight()), true, docs, results, sortBy);
+
+        addList(ppt, null, createPageAnchor(ppt), true, docs, results, sortBy);
 
         return ppt;
     }
