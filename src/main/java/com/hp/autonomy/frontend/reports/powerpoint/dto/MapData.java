@@ -5,15 +5,21 @@
 
 package com.hp.autonomy.frontend.reports.powerpoint.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MapData implements ComposableElement {
 
     private String image;
     private Marker[] markers;
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Marker {
         private double x, y;
         private String text;

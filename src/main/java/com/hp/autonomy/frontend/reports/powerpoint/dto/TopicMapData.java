@@ -6,14 +6,20 @@
 package com.hp.autonomy.frontend.reports.powerpoint.dto;
 
 import java.util.ArrayList;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TopicMapData implements ComposableElement {
 
     private Path[] paths;
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Path {
         public String name;
         public String color;

@@ -6,14 +6,18 @@
 package com.hp.autonomy.frontend.reports.powerpoint.dto;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DategraphData implements ComposableElement {
 
-    List<Row> rows;
-
     long[] timestamps;
+
+    List<Row> rows;
 
     public boolean validateInput() {
         final int length = this.timestamps.length;
@@ -28,6 +32,8 @@ public class DategraphData implements ComposableElement {
     }
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Row {
         String color;
         String label;

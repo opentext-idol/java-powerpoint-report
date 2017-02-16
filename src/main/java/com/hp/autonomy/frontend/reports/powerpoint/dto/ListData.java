@@ -5,14 +5,20 @@
 
 package com.hp.autonomy.frontend.reports.powerpoint.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ListData implements ComposableElement {
 
     private Document[] docs;
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Document {
         private String title;
         private String date;
