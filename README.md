@@ -38,7 +38,7 @@ The template must consist of two slides in the following order:
 1. a slide with a doughnut chart
 2. a slide with a line chart, with three data series: a time-based x-axis, a numeric primary y-axis, and a numeric secondary y-axis.
  
-You can see an example template in `src/main/resources/com/hp/autonomy/frontend/reports/powerpoint/templates/template.pptx`.
+You can see an example template in [template.pptx](src/main/resources/com/hp/autonomy/frontend/reports/powerpoint/templates/template.pptx).
 
 ### Using the service
 
@@ -51,8 +51,8 @@ Once you have the service, you can create DTOs to represent your data; then call
             Arrays.asList(
                 new DategraphData.Row("#FF0000", "Red Line", false, new double[]{
                     87, 87, 124, 49
-                })
-                , new DategraphData.Row("#00FF00", "Green Line", true, new double[]{
+                }),
+                new DategraphData.Row("#00FF00", "Green Line", true, new double[]{
                     12, 53, 63, 72
                 })
             )
