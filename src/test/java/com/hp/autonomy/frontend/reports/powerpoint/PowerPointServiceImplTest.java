@@ -25,7 +25,9 @@ import static java.io.File.createTempFile;
 @RunWith(MockitoJUnitRunner.class)
 public class PowerPointServiceImplTest {
 
-    private final String sampleImage = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAAeADIDASIAAhEBAxEB/8QAGQABAQEBAQEAAAAAAAAAAAAAAAcGBQQI/8QAJRAAAQQCAgICAgMAAAAAAAAAAQIDBAUABgcREiEIEyMxMkFR/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAUDBgT/xAAjEQEAAQQBBAIDAAAAAAAAAAABEQACAwQhBRIxURNBBhax/9oADAMBAAIRAxEAPwD7NxjMtypuUrjzjjZN4hVC7N+jrX5qIqVBPmUJJ7USR0gfyUR78QroE9A9Zra+Tbz2a+Im69LT65WDl4Oa4KtTjIPK+X/HmswqJneIdjW2s+qiWdgwBHAgof8ASVFJf8nArorCWvtWEFJUB3msY5/06ZyY/wAWQa23k2UWUiHIkNIYLTTimg6CWy6JH1+JH5Q0W+/XllnN+LdYwDdfr3doXXT9dtqCj4Tkj2IkiUhqmYybcJcq2/KsTZ5VrqUqkFHsEyoYDpbIcQyso6JS4r8qSk+foJBUAkqAJyk5L39HN0zZu1dgC+3zCP1PkkpTGMZ46Uzl7VrlbuGs22pXAcMC6gv18r6leK/qdbKF+J/o9KPR/wBzqYzTFkvw3mTGxcMj6Tw0qTMfHHW4bsSTA3ndYchqBFrJ0iJZoju2kaMsqYRIW20CCgEoCmvrV4eiT7z2Xvx/1DZN8h79c3N9KfgWTFtGguyGnI7MlkDwLa1Nl9tHYCi0h0Nk/tPvKbjK/wCx9V7/AJPme6EniYYk8egD0AEAFJrJ6JxvUceythfpbO0eY2O1fuXosp1C2Y0h5RW79PSApKVKV2QpSv0Ous1mMZL2dnLuZXNnu7rmJfcEfwpTGMZhSv/Z";
+    private static final String sampleJPEGWithoutHeader = "/9j/4AAQSkZJRgABAQAASABIAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAAeADIDASIAAhEBAxEB/8QAGQABAQEBAQEAAAAAAAAAAAAAAAcGBQQI/8QAJRAAAQQCAgICAgMAAAAAAAAAAQIDBAUABgcREiEIEyMxMkFR/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAUDBgT/xAAjEQEAAQQBBAIDAAAAAAAAAAABEQACAwQhBRIxURNBBhax/9oADAMBAAIRAxEAPwD7NxjMtypuUrjzjjZN4hVC7N+jrX5qIqVBPmUJJ7USR0gfyUR78QroE9A9Zra+Tbz2a+Im69LT65WDl4Oa4KtTjIPK+X/HmswqJneIdjW2s+qiWdgwBHAgof8ASVFJf8nArorCWvtWEFJUB3msY5/06ZyY/wAWQa23k2UWUiHIkNIYLTTimg6CWy6JH1+JH5Q0W+/XllnN+LdYwDdfr3doXXT9dtqCj4Tkj2IkiUhqmYybcJcq2/KsTZ5VrqUqkFHsEyoYDpbIcQyso6JS4r8qSk+foJBUAkqAJyk5L39HN0zZu1dgC+3zCP1PkkpTGMZ46Uzl7VrlbuGs22pXAcMC6gv18r6leK/qdbKF+J/o9KPR/wBzqYzTFkvw3mTGxcMj6Tw0qTMfHHW4bsSTA3ndYchqBFrJ0iJZoju2kaMsqYRIW20CCgEoCmvrV4eiT7z2Xvx/1DZN8h79c3N9KfgWTFtGguyGnI7MlkDwLa1Nl9tHYCi0h0Nk/tPvKbjK/wCx9V7/AJPme6EniYYk8egD0AEAFJrJ6JxvUceythfpbO0eY2O1fuXosp1C2Y0h5RW79PSApKVKV2QpSv0Ous1mMZL2dnLuZXNnu7rmJfcEfwpTGMZhSv/Z";
+    private static final String sampleJPEGImage = "data:image/jpeg;base64," + sampleJPEGWithoutHeader;
+    private static final String samplePNGImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAFCAIAAAAVLyF7AAAAPUlEQVQI14WNSQoAMAgDo/b/Lxamh9JiF+gcZJJDlCbA1z0zawXcvq5HhApmVr1GSa6d55NFO/IYA47VQQfmMSztMBTTBAAAAABJRU5ErkJggg==";
 
     private PowerPointServiceImpl pptxService;
 
@@ -36,6 +38,7 @@ public class PowerPointServiceImplTest {
 
     private void testWrite(final XMLSlideShow pptx) throws IOException {
         final File temp = createTempFile("temp", ".pptx");
+        temp.deleteOnExit();
         pptx.write(new FileOutputStream(temp));
     }
 
@@ -63,7 +66,7 @@ public class PowerPointServiceImplTest {
     @Test
     public void testListSingle() throws SlideShowTemplate.LoadException, IOException {
         final ListData listData = new ListData(new ListData.Document[]{
-            new ListData.Document("title1", "5 months ago", "reference", "summary", null)
+            new ListData.Document("title1", "5 months ago", "reference", "summary", sampleJPEGWithoutHeader)
         });
 
         final XMLSlideShow pptx = pptxService.list("Showing 1 to 1 of 1 results", "Sort by Relevance", listData);
@@ -79,12 +82,12 @@ public class PowerPointServiceImplTest {
             new ListData.Document("title2", "5 months ago", null, "summary", null),
             new ListData.Document("title3", null, "reference", "summary", null),
             new ListData.Document("title4", "5 months ago", "reference", null, null),
-            new ListData.Document("title5", "5 months ago", "reference", "summary", sampleImage),
-            new ListData.Document("title6", "5 months ago", "reference", "summary", sampleImage),
-            new ListData.Document("title7", "5 months ago", "reference", "summary", sampleImage),
-            new ListData.Document("title8", "5 months ago", "reference", "summary", sampleImage),
-            new ListData.Document("title9", "5 months ago", "reference", "summary", sampleImage),
-            new ListData.Document("title10", "5 months ago", "reference", "summary", sampleImage)
+            new ListData.Document("title5", "5 months ago", "reference", "summary", sampleJPEGImage),
+            new ListData.Document("title6", "5 months ago", "reference", "summary", sampleJPEGImage),
+            new ListData.Document("title7", "5 months ago", "reference", "summary", sampleJPEGImage),
+            new ListData.Document("title8", "5 months ago", "reference", "summary", sampleJPEGImage),
+            new ListData.Document("title9", "5 months ago", "reference", "summary", sampleJPEGImage),
+            new ListData.Document("title10", "5 months ago", "reference", "summary", samplePNGImage)
         });
 
         final XMLSlideShow pptx = pptxService.list("Showing 1 to 10 of 10 results", "Sort by Relevance", listData);
