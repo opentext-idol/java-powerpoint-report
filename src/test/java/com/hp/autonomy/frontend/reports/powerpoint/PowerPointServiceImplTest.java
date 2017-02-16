@@ -6,6 +6,7 @@
 package com.hp.autonomy.frontend.reports.powerpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hp.autonomy.frontend.reports.powerpoint.dto.Anchor;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.DategraphData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ListData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.MapData;
@@ -38,7 +39,12 @@ public class PowerPointServiceImplTest {
 
     @Before
     public void before() {
-        pptxService = new PowerPointServiceImpl();
+
+        pptxService = new PowerPointServiceImpl(
+            TemplateSource.DEFAULT,
+            // Keep 1% of left and right margin free, and 2% of top and bottom margin free
+            () -> new TemplateSettings(new Anchor(0.01, 0.02, 0.98, 0.96))
+        );
     }
 
     private void testWrite(final XMLSlideShow pptx) throws IOException {
@@ -203,10 +209,42 @@ public class PowerPointServiceImplTest {
 
     @Test
     public void testComplicatedReport() throws SlideShowTemplate.LoadException, IOException {
+        final ReportData report = createComplicatedReport(3);
+
+        final XMLSlideShow pptx = pptxService.report(report);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    @Test
+    public void testComplicatedReportWithoutWidgetMargins() throws SlideShowTemplate.LoadException, IOException {
+        final ReportData report = createComplicatedReport(0);
+
+        final XMLSlideShow pptx = pptxService.report(report);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    @Test
+    public void testComplicatedReportWithoutTextOrMargins() throws SlideShowTemplate.LoadException, IOException {
+        final ReportData report = createComplicatedReport(0);
+
+        for(ReportData.Child child : report.getChildren()) {
+            child.setTitle(null);
+        }
+
+        final XMLSlideShow pptx = pptxService.report(report);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    private static ReportData createComplicatedReport(final double widgetMargins) throws IOException {
         final String titleFont = "Times New Roman";
         final double titleFontSize = 12;
         final double titleMargin = 5;
-        final double widgetMargins = 3;
 
         final double x1 = 0,
                     x2 = 0.25,
@@ -222,7 +260,7 @@ public class PowerPointServiceImplTest {
                 new TextData.Paragraph(true, true, "BoldItalic\n", "#FFFF00", 14.0)
         });
 
-        final ReportData report = new ReportData(new ReportData.Child[] {
+        return new ReportData(new ReportData.Child[] {
                 new ReportData.Child(x1, y1, 0.25, 0.5, "Dategraph", widgetMargins, titleMargin, titleFontSize, titleFont, createTwoAxisDategraphData()),
                 new ReportData.Child(x2, y1, 0.25, 0.5, "Dategraph #2", widgetMargins, titleMargin, titleFontSize, titleFont, createSingleAxisDategraphData()),
                 new ReportData.Child(x3, y1, 0.25, 0.5, "Sunburst", widgetMargins, titleMargin, titleFontSize, titleFont, createSunburstData()),
@@ -232,11 +270,6 @@ public class PowerPointServiceImplTest {
                 new ReportData.Child(x3, y2, 0.25, 0.5, "TopicMap", widgetMargins, titleMargin, titleFontSize, titleFont, createTopicMapData()),
                 new ReportData.Child(x4, y2, 0.25, 0.5, "List", widgetMargins, titleMargin, titleFontSize, titleFont, createListData()),
         });
-
-        final XMLSlideShow pptx = pptxService.report(report);
-        testWrite(pptx);
-
-        Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
 
