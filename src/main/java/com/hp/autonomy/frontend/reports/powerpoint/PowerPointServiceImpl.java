@@ -99,6 +99,10 @@ import static org.apache.poi.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
 
 public class PowerPointServiceImpl implements PowerPointService {
 
+    private static final String BASE64_SCHEMA= "data:";
+    private static final String BASE64_JPEG = BASE64_SCHEMA + "image/jpeg;base64,";
+    private static final String BASE64_PNG = BASE64_SCHEMA + "image/png;base64,";
+
     private final TemplateSource pptxTemplate;
     private final TemplateSettingsSource pptxSettings;
 
@@ -425,10 +429,10 @@ public class PowerPointServiceImpl implements PowerPointService {
 
     private static XSLFPictureData addPictureData(final XMLSlideShow ppt, final String image) {
         final PictureData.PictureType type;
-        if(image.startsWith("data:image/png;base64,")) {
+        if(image.startsWith(BASE64_PNG)) {
             type = PictureData.PictureType.PNG;
         }
-        else if(image.startsWith("data:image/jpeg;base64,")) {
+        else if(image.startsWith(BASE64_JPEG)) {
             type = PictureData.PictureType.JPEG;
         }
         else {
@@ -437,6 +441,10 @@ public class PowerPointServiceImpl implements PowerPointService {
 
         final byte[] bytes = Base64.decodeBase64(image.split(",")[1]);
         return ppt.addPicture(bytes, type);
+    }
+
+    private static String ensureDataPrefix(final String prefix, final String image) {
+        return image.startsWith(BASE64_SCHEMA) ? image : prefix + image;
     }
 
     private static XSLFPictureShape addMap(final XSLFSlide slide, final Rectangle2D.Double anchor, final XSLFPictureData picture, final Marker[] markers) {
@@ -645,9 +653,9 @@ public class PowerPointServiceImpl implements PowerPointService {
 
             if (StringUtils.isNotBlank(doc.getThumbnail())) {
                 try {
-                    final byte[] imageData = Base64.decodeBase64(doc.getThumbnail());
+                    final XSLFPictureData pictureData = addPictureData(ppt, ensureDataPrefix(BASE64_JPEG, doc.getThumbnail()));
                     // Picture reuse is automatic
-                    picture = sl.createPicture(ppt.addPicture(imageData, PictureData.PictureType.JPEG));
+                    picture = sl.createPicture(pictureData);
                     picture.setAnchor(new Rectangle2D.Double(xCursor, yCursor + thumbnailOffset + thumbMargin, thumbW, thumbH));
 
                     // If there is enough horizontal space, put the text summary to the right of the thumbnail image,
