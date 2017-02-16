@@ -9,6 +9,7 @@ import com.hp.autonomy.frontend.reports.powerpoint.dto.DategraphData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ListData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ReportData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.SunburstData;
+import com.hp.autonomy.frontend.reports.powerpoint.dto.TableData;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,7 +39,11 @@ public class PowerPointServiceImplTest {
 
     private void testWrite(final XMLSlideShow pptx) throws IOException {
         final File temp = createTempFile("temp", ".pptx");
-        temp.deleteOnExit();
+
+        if (!Boolean.valueOf(System.getProperty("keep.powerpoint.output", "false"))) {
+            temp.deleteOnExit();
+        }
+
         pptx.write(new FileOutputStream(temp));
     }
 
@@ -114,6 +119,22 @@ public class PowerPointServiceImplTest {
         testWrite(pptx);
 
         Assert.assertTrue(pptx.getSlides().size() > 1);
+    }
+
+    @Test
+    public void testTable() throws SlideShowTemplate.LoadException, IOException {
+        final TableData tableData = new TableData(new String[]{
+            "Animal", "Count",
+            "Cat", "1",
+            "Dog", "1",
+            "Mouse", "1",
+            "Fish", "1"
+        }, 4, 2);
+
+        final XMLSlideShow pptx = pptxService.table("Animals", tableData);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
     @Test
