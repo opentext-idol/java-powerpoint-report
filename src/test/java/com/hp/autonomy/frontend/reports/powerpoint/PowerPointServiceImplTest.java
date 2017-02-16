@@ -80,11 +80,11 @@ public class PowerPointServiceImplTest {
             new ListData.Document("title3", null, "reference", "summary", null),
             new ListData.Document("title4", "5 months ago", "reference", null, null),
             new ListData.Document("title5", "5 months ago", "reference", "summary", sampleImage),
-            new ListData.Document("title6", "5 months ago", "reference", "summary", null),
-            new ListData.Document("title7", "5 months ago", "reference", "summary", null),
-            new ListData.Document("title8", "5 months ago", "reference", "summary", null),
-            new ListData.Document("title9", "5 months ago", "reference", "summary", null),
-            new ListData.Document("title10", "5 months ago", "reference", "summary", null)
+            new ListData.Document("title6", "5 months ago", "reference", "summary", sampleImage),
+            new ListData.Document("title7", "5 months ago", "reference", "summary", sampleImage),
+            new ListData.Document("title8", "5 months ago", "reference", "summary", sampleImage),
+            new ListData.Document("title9", "5 months ago", "reference", "summary", sampleImage),
+            new ListData.Document("title10", "5 months ago", "reference", "summary", sampleImage)
         });
 
         final XMLSlideShow pptx = pptxService.list("Showing 1 to 10 of 10 results", "Sort by Relevance", listData);
