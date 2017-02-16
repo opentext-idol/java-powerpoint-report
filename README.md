@@ -6,7 +6,7 @@ Library to help generate PowerPoint reports; originally designed for the [Find U
 
 It renders various visualizations from Find into PowerPoint, e.g. a topic map, list, sunburst (only one level, as a doughnut chart), table, map and date graph as individual PowerPoint presentations. 
 
-It also has a `report` API to generate a composite report consisting of multiple visualizations.
+It also has a `report` API to generate a composite report consisting of multiple visualizations rendered onto a single slide.
 
 This repo uses git-flow. develop is the development branch. master is the last known good branch.
 
@@ -14,9 +14,11 @@ This repo uses git-flow. develop is the development branch. master is the last k
 
 ### Creating a service
 
-The library is bundled with a default PowerPoint template and settings, which you can use with e.g.
+The primary interface to working with this API is the [```PowerPointService```](src/main/java/com/hp/autonomy/frontend/reports/powerpoint/PowerPointService.java) interface, which is implemented in  [```PowerPointServiceImpl```](src/main/java/com/hp/autonomy/frontend/reports/powerpoint/PowerPointServiceImpl.java). 
+
+The library is bundled with a default PowerPoint template and settings, which you can use e.g.
 ```java
-   PowerPointService service = new PowerPointServiceImpl();
+   PowerPointService pptxService = new PowerPointServiceImpl();
 ```
 
 Alternatively, you can provide your own template PowerPoint file and settings, e.g.
@@ -32,17 +34,18 @@ Alternatively, you can provide your own template PowerPoint file and settings, e
     pptxService.validateTemplate();
 ```
 
-You can edit the master slide on your PowerPoint template e.g. to add your logo to every slide; and reserve space for it by specifying custom anchor points.
+You can edit the master slide on your PowerPoint template e.g. to add your logo to every slide; and reserve space for your content by specifying custom anchor points as above.
 
 The template must consist of two slides in the following order:
+
 1. a slide with a doughnut chart
 2. a slide with a line chart, with three data series: a time-based x-axis, a numeric primary y-axis, and a numeric secondary y-axis.
  
-You can see an example template in [template.pptx](src/main/resources/com/hp/autonomy/frontend/reports/powerpoint/templates/template.pptx).
+You can see an example template in [template.pptx](src/main/resources/com/hp/autonomy/frontend/reports/powerpoint/templates/template.pptx), and an example of embedding your logo into the default master slide in [validTemplateWithLogo.pptx](src/test/resources/com/hp/autonomy/frontend/reports/powerpoint/validTemplateWithLogo.pptx).
 
 ### Using the service
 
-Once you have the service, you can create DTOs to represent your data; then call the methods exposed on the service to create PowerPoint presentations, e.g.
+Once you have the service, you can create data transfer objects (DTOs) to represent your data; then call the methods exposed on the service to create PowerPoint presentations, e.g.
 ```java
     final DategraphData dategraph = new DategraphData(
             new long[]{
@@ -64,10 +67,10 @@ Once you have the service, you can create DTOs to represent your data; then call
     pptx.write(new FileOutputStream("dategraph.pptx"));
 ```
 
-Similarly, you can compose multiple visualizations into a single slide
+Similarly, you can compose multiple visualizations into a single slide:
 ```java
     // Assume dategraph data is already declared as in above example
-    //  final DateGraphData = ....
+    //  final DateGraphData dategraph = ....
 
     final SunburstData topRightSunburst = new SunburstData( 
         new String[] { "Red", "Green", "Blue"},
@@ -98,6 +101,14 @@ Similarly, you can compose multiple visualizations into a single slide
     pptx.write(new FileOutputStream("report.pptx"));
 ```
 
+In practice, if you're working with JSON data, it's probably easiest to use Jackson to deserialize JSON straight into your DTO, e.g. given [topicmap.json](src/test/resources/com/hp/autonomy/frontend/reports/powerpoint/topicmap.json) you can produce a ```TopicMapData``` object for use in the API.
+```java
+    //   final String json = ...;
+    final TopicMapData topicMap = new ObjectMapper().readValue(json, TopicMapData.class);
+    
+    final XMLSlideShow pptx = pptxService.topicmap(topicMap);
+    pptx.write(new FileOutputStream("topicmap.pptx"));
+```
 
 ## License
 Copyright 2017 Hewlett Packard Enterprise Development LP
