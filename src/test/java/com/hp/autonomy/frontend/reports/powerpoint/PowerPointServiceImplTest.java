@@ -12,6 +12,7 @@ import com.hp.autonomy.frontend.reports.powerpoint.dto.MapData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ReportData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.SunburstData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.TableData;
+import com.hp.autonomy.frontend.reports.powerpoint.dto.TextData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.TopicMapData;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -214,11 +215,18 @@ public class PowerPointServiceImplTest {
                     y1 = 0,
                     y2 = 0.5;
 
+        final TextData textData = new TextData(new TextData.Paragraph[]{
+                new TextData.Paragraph(false, false, "Plain\n", "#FF0000", 8),
+                new TextData.Paragraph(true, false, "Bold\n", "#00FF00", 10.0),
+                new TextData.Paragraph(false, true, "Italic\n", "#0000FF", 12.0),
+                new TextData.Paragraph(true, true, "BoldItalic\n", "#FFFF00", 14.0)
+        });
+
         final ReportData report = new ReportData(new ReportData.Child[] {
                 new ReportData.Child(x1, y1, 0.25, 0.5, "Dategraph", widgetMargins, titleMargin, titleFontSize, titleFont, createTwoAxisDategraphData()),
                 new ReportData.Child(x2, y1, 0.25, 0.5, "Dategraph #2", widgetMargins, titleMargin, titleFontSize, titleFont, createSingleAxisDategraphData()),
                 new ReportData.Child(x3, y1, 0.25, 0.5, "Sunburst", widgetMargins, titleMargin, titleFontSize, titleFont, createSunburstData()),
-                new ReportData.Child(x4, y1, 0.25, 0.5, "Sunburst #2", widgetMargins, titleMargin, titleFontSize, titleFont, createAlternativeSunburstData()),
+                new ReportData.Child(x4, y1, 0.25, 0.5, "Text Data", widgetMargins, titleMargin, titleFontSize, titleFont, textData),
                 new ReportData.Child(x1, y2, 0.25, 0.5, "Map", widgetMargins, titleMargin, titleFontSize, titleFont, createMapData()),
                 new ReportData.Child(x2, y2, 0.25, 0.5, "Table", widgetMargins, titleMargin, titleFontSize, titleFont, createTableData()),
                 new ReportData.Child(x3, y2, 0.25, 0.5, "TopicMap", widgetMargins, titleMargin, titleFontSize, titleFont, createTopicMapData()),
