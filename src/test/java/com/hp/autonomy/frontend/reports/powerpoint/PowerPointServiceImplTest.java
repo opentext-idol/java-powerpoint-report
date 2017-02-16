@@ -174,6 +174,16 @@ public class PowerPointServiceImplTest {
         Assert.assertTrue(pptx.getSlides().size() > 1);
     }
 
+    @Test
+    public void testListWithoutHeaders() throws SlideShowTemplate.LoadException, IOException {
+        final ListData listData = createListData();
+
+        final XMLSlideShow pptx = pptxService.list(null, null, listData);
+        testWrite(pptx);
+
+        Assert.assertTrue(pptx.getSlides().size() > 1);
+    }
+
     private static ListData createListData() {
         return new ListData(new ListData.Document[]{
                 new ListData.Document("title1", "5 months ago", "reference", "summary", null),
