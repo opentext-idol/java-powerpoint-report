@@ -314,12 +314,19 @@ public class PowerPointServiceImpl implements PowerPointService {
 
         final Rectangle2D.Double pageAnchor = createPageAnchor(ppt);
 
-        final double textHeight = 0.1 * pageAnchor.getHeight();
-        final XSLFTextBox textBox = sl.createTextBox();
-        textBox.setText(title);
-        textBox.setHorizontalCentered(true);
-        textBox.setTextAutofit(TextShape.TextAutofit.SHAPE);
-        textBox.setAnchor(startingSpace(pageAnchor, textHeight));
+        final double textHeight;
+
+        if (StringUtils.isNotBlank(title)) {
+            textHeight = 0.1 * pageAnchor.getHeight();
+            final XSLFTextBox textBox = sl.createTextBox();
+            textBox.setText(title);
+            textBox.setHorizontalCentered(true);
+            textBox.setTextAutofit(TextShape.TextAutofit.SHAPE);
+            textBox.setAnchor(startingSpace(pageAnchor, textHeight));
+        }
+        else {
+            textHeight = 0;
+        }
 
         addTable(sl, remainingSpace(pageAnchor, textHeight), rows, cols, data, false);
 
@@ -410,16 +417,23 @@ public class PowerPointServiceImpl implements PowerPointService {
         final XSLFSlide sl = ppt.createSlide();
 
         final Rectangle2D.Double pageAnchor = createPageAnchor(ppt);
-        final double textHeight = 0.1 * pageAnchor.getHeight();
+        final double textHeight;
 
-        final XSLFTextBox textBox = sl.createTextBox();
-        textBox.clearText();
-        final XSLFTextParagraph paragraph = textBox.addNewTextParagraph();
-        paragraph.setTextAlign(TextParagraph.TextAlign.CENTER);
-        paragraph.addNewTextRun().setText(title);
-        textBox.setHorizontalCentered(true);
-        textBox.setTextAutofit(TextShape.TextAutofit.SHAPE);
-        textBox.setAnchor(startingSpace(pageAnchor, textHeight));
+        if (StringUtils.isNotBlank(title)) {
+            textHeight = 0.1 * pageAnchor.getHeight();
+
+            final XSLFTextBox textBox = sl.createTextBox();
+            textBox.clearText();
+            final XSLFTextParagraph paragraph = textBox.addNewTextParagraph();
+            paragraph.setTextAlign(TextParagraph.TextAlign.CENTER);
+            paragraph.addNewTextRun().setText(title);
+            textBox.setHorizontalCentered(true);
+            textBox.setTextAutofit(TextShape.TextAutofit.SHAPE);
+            textBox.setAnchor(startingSpace(pageAnchor, textHeight));
+        }
+        else {
+            textHeight = 0;
+        }
 
         final XSLFPictureData picture = addPictureData(ppt, image);
         addMap(sl, remainingSpace(pageAnchor, textHeight), picture, map.getMarkers());

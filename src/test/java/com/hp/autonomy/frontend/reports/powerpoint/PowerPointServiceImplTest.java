@@ -209,6 +209,16 @@ public class PowerPointServiceImplTest {
         Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
+    @Test
+    public void testTableWithoutTitle() throws SlideShowTemplate.LoadException, IOException {
+        final TableData tableData = createTableData();
+
+        final XMLSlideShow pptx = pptxService.table(null, tableData);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
     private static TableData createTableData() {
         return new TableData(new String[]{
                 "Animal", "Count",
@@ -238,6 +248,16 @@ public class PowerPointServiceImplTest {
         final MapData map = createMapData();
 
         final XMLSlideShow pptx = pptxService.map("Test Map", map);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    @Test
+    public void testMapWithoutTitle() throws SlideShowTemplate.LoadException, IOException {
+        final MapData map = createMapData();
+
+        final XMLSlideShow pptx = pptxService.map(null, map);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
