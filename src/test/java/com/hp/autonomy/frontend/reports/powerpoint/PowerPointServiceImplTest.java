@@ -325,6 +325,33 @@ public class PowerPointServiceImplTest {
         Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
+    @Test
+    public void deserializeDefaultsTest() throws IOException {
+        // Jackson loses the defaults if you have both @NoArgsConstructor and @AllArgsConstructor, even if you
+        //   tag @JsonCreator on the @NoArgsConstructor. So defaults like a non-zero fontsize were being lost.
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final ReportData.Child child = objectMapper.readValue("{}", ReportData.Child.class);
+
+        final String font = child.getFontFamily();
+        Assert.assertNotNull(font);
+
+        final Anchor anchor = objectMapper.readValue("{}", Anchor.class);
+        Assert.assertEquals(1, anchor.getWidth(), Double.MIN_VALUE);
+
+        final TextData.Paragraph paragraph = objectMapper.readValue("{}", TextData.Paragraph.class);
+        Assert.assertNotEquals(0, paragraph.getFontSize(), Double.MIN_VALUE);
+    }
+
+    @Test
+    public void testReportByDeserialization() throws SlideShowTemplate.LoadException, IOException {
+        final ReportData report = new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("report.json"), ReportData.class);
+
+        final XMLSlideShow pptx = pptxService.report(report);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
     private static ReportData createComplicatedReport(final double widgetMargins) throws IOException {
         final String titleFont = "Times New Roman";
         final double titleFontSize = 12;

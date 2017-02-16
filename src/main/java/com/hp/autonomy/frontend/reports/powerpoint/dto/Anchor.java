@@ -5,14 +5,19 @@
 
 package com.hp.autonomy.frontend.reports.powerpoint.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Anchor {
+
+    public Anchor(final double x, final double y, final double width, final double height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
 
     private double x, y, width = 1, height = 1;
 

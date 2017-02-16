@@ -17,13 +17,20 @@ public class TextData implements ComposableElement {
 
     @Data
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class Paragraph {
         private boolean bold;
         private boolean italic;
         private String text = "\n";
         private String color = "#000000";
         private double fontSize = 12;
+
+        public Paragraph(final boolean bold, final boolean italic, final String text, final String color, final double fontSize) {
+            this.bold = bold;
+            this.italic = italic;
+            this.text = text;
+            this.color = color;
+            this.fontSize = fontSize;
+        }
     }
 
 }

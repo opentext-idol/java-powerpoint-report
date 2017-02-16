@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -19,17 +20,25 @@ public class ReportData {
     private Child[] children;
 
     @Data
+    @EqualsAndHashCode(callSuper = true)
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class Child extends Anchor {
-        private double x, y, width = 1, height = 1;
-
         private String title;
 
         private double margin = 3;
         private double textMargin = 5;
         private double fontSize = 12;
         private String fontFamily = "Metric-Light";
+
+        public Child(final double x, final double y, final double width, final double height, final String title, final double margin, final double textMargin, final double fontSize, final String fontFamily, final ComposableElement data) {
+            super(x, y, width, height);
+            this.title = title;
+            this.margin = margin;
+            this.textMargin = textMargin;
+            this.fontSize = fontSize;
+            this.fontFamily = fontFamily;
+            this.data = data;
+        }
 
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
         @JsonSubTypes({
