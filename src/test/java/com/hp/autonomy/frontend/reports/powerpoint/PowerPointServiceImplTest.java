@@ -105,23 +105,27 @@ public class PowerPointServiceImplTest {
 
     @Test
     public void testListPagination() throws SlideShowTemplate.LoadException, IOException {
-        final ListData listData = new ListData(new ListData.Document[]{
-            new ListData.Document("title1", "5 months ago", "reference", "summary", null),
-            new ListData.Document("title2", "5 months ago", null, "summary", null),
-            new ListData.Document("title3", null, "reference", "summary", null),
-            new ListData.Document("title4", "5 months ago", "reference", null, null),
-            new ListData.Document("title5", "5 months ago", "reference", "summary", sampleJPEGImage),
-            new ListData.Document("title6", "5 months ago", "reference", "summary", sampleJPEGImage),
-            new ListData.Document("title7", "5 months ago", "reference", "summary", sampleJPEGImage),
-            new ListData.Document("title8", "5 months ago", "reference", "summary", sampleJPEGImage),
-            new ListData.Document("title9", "5 months ago", "reference", "summary", sampleJPEGImage),
-            new ListData.Document("title10", "5 months ago", "reference", "summary", samplePNGImage)
-        });
+        final ListData listData = createListData();
 
         final XMLSlideShow pptx = pptxService.list("Showing 1 to 10 of 10 results", "Sort by Relevance", listData);
         testWrite(pptx);
 
         Assert.assertTrue(pptx.getSlides().size() > 1);
+    }
+
+    private static ListData createListData() {
+        return new ListData(new ListData.Document[]{
+                new ListData.Document("title1", "5 months ago", "reference", "summary", null),
+                new ListData.Document("title2", "5 months ago", null, "summary", null),
+                new ListData.Document("title3", null, "reference", "summary", null),
+                new ListData.Document("title4", "5 months ago", "reference", null, null),
+                new ListData.Document("title5", "5 months ago", "reference", "summary", sampleJPEGImage),
+                new ListData.Document("title6", "5 months ago", "reference", "summary", sampleJPEGImage),
+                new ListData.Document("title7", "5 months ago", "reference", "summary", sampleJPEGImage),
+                new ListData.Document("title8", "5 months ago", "reference", "summary", sampleJPEGImage),
+                new ListData.Document("title9", "5 months ago", "reference", "summary", sampleJPEGImage),
+                new ListData.Document("title10", "5 months ago", "reference", "summary", samplePNGImage)
+            });
     }
 
     @Test
@@ -178,11 +182,7 @@ public class PowerPointServiceImplTest {
 
         final SunburstData sunburst = createSunburstData();
 
-        final SunburstData bottomRightSunburst = new SunburstData(
-                new String[] { "Cyan", "Magenta", "Yellow", "Black"},
-                new double[] { 0.994, 0, 0.231, 0.337 },
-                "CMYK Colours"
-        );
+        final SunburstData bottomRightSunburst = createAlternativeSunburstData();
 
         final String titleFont = "Times New Roman";
         final double titleFontSize = 12;
@@ -199,6 +199,38 @@ public class PowerPointServiceImplTest {
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
     }
+
+    @Test
+    public void testComplicatedReport() throws SlideShowTemplate.LoadException, IOException {
+        final String titleFont = "Times New Roman";
+        final double titleFontSize = 12;
+        final double titleMargin = 5;
+        final double widgetMargins = 3;
+
+        final double x1 = 0,
+                    x2 = 0.25,
+                    x3 = 0.5,
+                    x4 = 0.75,
+                    y1 = 0,
+                    y2 = 0.5;
+
+        final ReportData report = new ReportData(new ReportData.Child[] {
+                new ReportData.Child(x1, y1, 0.25, 0.5, "Dategraph", widgetMargins, titleMargin, titleFontSize, titleFont, createTwoAxisDategraphData()),
+                new ReportData.Child(x2, y1, 0.25, 0.5, "Dategraph #2", widgetMargins, titleMargin, titleFontSize, titleFont, createSingleAxisDategraphData()),
+                new ReportData.Child(x3, y1, 0.25, 0.5, "Sunburst", widgetMargins, titleMargin, titleFontSize, titleFont, createSunburstData()),
+                new ReportData.Child(x4, y1, 0.25, 0.5, "Sunburst #2", widgetMargins, titleMargin, titleFontSize, titleFont, createAlternativeSunburstData()),
+                new ReportData.Child(x1, y2, 0.25, 0.5, "Map", widgetMargins, titleMargin, titleFontSize, titleFont, createMapData()),
+                new ReportData.Child(x2, y2, 0.25, 0.5, "Table", widgetMargins, titleMargin, titleFontSize, titleFont, createTableData()),
+                new ReportData.Child(x3, y2, 0.25, 0.5, "TopicMap", widgetMargins, titleMargin, titleFontSize, titleFont, createTopicMapData()),
+                new ReportData.Child(x4, y2, 0.25, 0.5, "List", widgetMargins, titleMargin, titleFontSize, titleFont, createListData()),
+        });
+
+        final XMLSlideShow pptx = pptxService.report(report);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
 
     private static DategraphData createSingleAxisDategraphData() {
         return new DategraphData(
@@ -253,6 +285,14 @@ public class PowerPointServiceImplTest {
                 new double[] { 1, 169, 130 },
                 "RGB Colours"
             );
+    }
+
+    private static SunburstData createAlternativeSunburstData() {
+        return new SunburstData(
+                new String[] { "Cyan", "Magenta", "Yellow", "Black"},
+                new double[] { 0.994, 0, 0.231, 0.337 },
+                "CMYK Colours"
+        );
     }
 
 }
