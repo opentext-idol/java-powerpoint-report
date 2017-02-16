@@ -8,6 +8,7 @@ package com.hp.autonomy.frontend.reports.powerpoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.DategraphData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ListData;
+import com.hp.autonomy.frontend.reports.powerpoint.dto.MapData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ReportData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.SunburstData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.TableData;
@@ -32,7 +33,7 @@ public class PowerPointServiceImplTest {
     private static final String sampleJPEGImage = "data:image/jpeg;base64," + sampleJPEGWithoutHeader;
     private static final String samplePNGImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAFCAIAAAAVLyF7AAAAPUlEQVQI14WNSQoAMAgDo/b/Lxamh9JiF+gcZJJDlCbA1z0zawXcvq5HhApmVr1GSa6d55NFO/IYA47VQQfmMSztMBTTBAAAAABJRU5ErkJggg==";
 
-    private PowerPointServiceImpl pptxService;
+    private PowerPointService pptxService;
 
     @Before
     public void before() {
@@ -125,13 +126,7 @@ public class PowerPointServiceImplTest {
 
     @Test
     public void testTable() throws SlideShowTemplate.LoadException, IOException {
-        final TableData tableData = new TableData(new String[]{
-            "Animal", "Count",
-            "Cat", "1",
-            "Dog", "1",
-            "Mouse", "1",
-            "Fish", "1"
-        }, 4, 2);
+        final TableData tableData = createTableData();
 
         final XMLSlideShow pptx = pptxService.table("Animals", tableData);
         testWrite(pptx);
@@ -139,14 +134,42 @@ public class PowerPointServiceImplTest {
         Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
+    private static TableData createTableData() {
+        return new TableData(new String[]{
+                "Animal", "Count",
+                "Cat", "1",
+                "Dog", "1",
+                "Mouse", "1",
+                "Fish", "1"
+            }, 4, 2);
+    }
+
     @Test
     public void testTopicMap() throws SlideShowTemplate.LoadException, IOException {
-        final TopicMapData topicMap = new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("topicmap.json"), TopicMapData.class);
+        final TopicMapData topicMap = createTopicMapData();
 
         final XMLSlideShow pptx = pptxService.topicmap(topicMap);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    private static TopicMapData createTopicMapData() throws IOException {
+        return new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("topicmap.json"), TopicMapData.class);
+    }
+
+    @Test
+    public void testMap() throws SlideShowTemplate.LoadException, IOException {
+        final MapData map = createMapData();
+
+        final XMLSlideShow pptx = pptxService.map("Test Map", map);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    private static MapData createMapData() throws IOException {
+        return new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("map.json"), MapData.class);
     }
 
     @Test
