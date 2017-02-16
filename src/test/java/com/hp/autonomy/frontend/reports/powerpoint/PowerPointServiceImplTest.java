@@ -16,6 +16,7 @@ import com.hp.autonomy.frontend.reports.powerpoint.dto.TableData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.TextData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.TopicMapData;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,7 +40,6 @@ public class PowerPointServiceImplTest {
 
     @Before
     public void before() {
-
         pptxService = new PowerPointServiceImpl(
             TemplateSource.DEFAULT,
             // Keep 1% of left and right margin free, and 2% of top and bottom margin free
@@ -55,6 +55,60 @@ public class PowerPointServiceImplTest {
         }
 
         pptx.write(new FileOutputStream(temp));
+    }
+
+    @Test
+    public void testValidateCorrectTemplate() throws SlideShowTemplate.LoadException, IOException {
+        testResourceAsTemplate("validTemplateWithLogo.pptx");
+    }
+
+    @Test(expected = SlideShowTemplate.LoadException.class)
+    public void testValidateBlankFile() throws SlideShowTemplate.LoadException, IOException {
+        // Testing an empty file should not work.
+        final File blankFile = createTempFile("blank", ".pptx");
+        blankFile.deleteOnExit();
+
+        new PowerPointServiceImpl(
+            () -> new FileInputStream(blankFile),
+            TemplateSettingsSource.DEFAULT
+        ).validateTemplate();
+    }
+
+    @Test(expected = SlideShowTemplate.LoadException.class)
+    public void testValidateImageFile() throws SlideShowTemplate.LoadException, IOException {
+        // This isn't a template at all.
+        testResourceAsTemplate("invalidTemplate.jpg");
+    }
+
+    @Test(expected = SlideShowTemplate.LoadException.class)
+    public void testValidateWordFile() throws SlideShowTemplate.LoadException, IOException {
+        // You actually get a different error from the POI for this, which is why we explicitly test it.
+        testResourceAsTemplate("invalidTemplate.docx");
+    }
+
+    @Test(expected = SlideShowTemplate.LoadException.class)
+    public void testValidateZipFile() throws SlideShowTemplate.LoadException, IOException {
+        // PowerPoint files are internally zip files, so it's plausible that we'd need to treat this specially.
+        testResourceAsTemplate("invalidTemplate.zip");
+    }
+
+    @Test(expected = SlideShowTemplate.LoadException.class)
+    public void testValidateWrongSlideCountPowerPointFile() throws SlideShowTemplate.LoadException, IOException {
+        // This template is a valid PowerPoint file with all the right components, but has the wrong number of slides.
+        testResourceAsTemplate("invalidTemplate.pptx");
+    }
+
+    @Test(expected = SlideShowTemplate.LoadException.class)
+    public void testValidateWrongComponentsPowerPointFile() throws SlideShowTemplate.LoadException, IOException {
+        // This template is a valid PowerPoint file, but has a textbox instead of a line chart on the 2nd slide.
+        testResourceAsTemplate("templateMissingComponents.pptx");
+    }
+
+    private static void testResourceAsTemplate(final String resource) throws SlideShowTemplate.LoadException {
+        new PowerPointServiceImpl(
+                () -> PowerPointServiceImplTest.class.getResourceAsStream(resource),
+                TemplateSettingsSource.DEFAULT
+        ).validateTemplate();
     }
 
     @Test
