@@ -5,11 +5,13 @@
 
 package com.hp.autonomy.frontend.reports.powerpoint;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.DategraphData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ListData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.ReportData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.SunburstData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.TableData;
+import com.hp.autonomy.frontend.reports.powerpoint.dto.TopicMapData;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -132,6 +134,16 @@ public class PowerPointServiceImplTest {
         }, 4, 2);
 
         final XMLSlideShow pptx = pptxService.table("Animals", tableData);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    @Test
+    public void testTopicMap() throws SlideShowTemplate.LoadException, IOException {
+        final TopicMapData topicMap = new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("topicmap.json"), TopicMapData.class);
+
+        final XMLSlideShow pptx = pptxService.topicmap(topicMap);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
