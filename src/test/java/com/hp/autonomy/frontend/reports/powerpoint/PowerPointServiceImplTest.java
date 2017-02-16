@@ -43,8 +43,28 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testDateGraph() throws SlideShowTemplate.LoadException, IOException {
-        final DategraphData data = createDategraphData();
+    public void testDateGraphTwoAxes() throws SlideShowTemplate.LoadException, IOException {
+        final DategraphData data = createTwoAxisDategraphData();
+
+        final XMLSlideShow pptx = pptxService.graph(data);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    @Test
+    public void testDateGraphSingleAxis() throws SlideShowTemplate.LoadException, IOException {
+        final DategraphData data = createSingleAxisDategraphData();
+
+        final XMLSlideShow pptx = pptxService.graph(data);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    @Test
+    public void testDateGraphMultipleSeries() throws SlideShowTemplate.LoadException, IOException {
+        final DategraphData data = createTwoAxisMultipleSeriesDategraphData();
 
         final XMLSlideShow pptx = pptxService.graph(data);
         testWrite(pptx);
@@ -98,7 +118,7 @@ public class PowerPointServiceImplTest {
 
     @Test
     public void testReport() throws SlideShowTemplate.LoadException, IOException {
-        final DategraphData dategraph = createDategraphData();
+        final DategraphData dategraph = createTwoAxisDategraphData();
 
         final SunburstData sunburst = createSunburstData();
 
@@ -124,7 +144,20 @@ public class PowerPointServiceImplTest {
         Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
-    private static DategraphData createDategraphData() {
+    private static DategraphData createSingleAxisDategraphData() {
+        return new DategraphData(
+                new long[]{
+                        1480690162, 1482394810, 1484099459, 1485804108
+                },
+                Arrays.asList(
+                        new DategraphData.Row("#FF0000", "Red Line", false, new double[]{
+                                87, 87, 124, 49
+                        })
+                )
+        );
+    }
+
+    private static DategraphData createTwoAxisDategraphData() {
         return new DategraphData(
                 new long[]{
                         1480690162, 1482394810, 1484099459, 1485804108
@@ -134,6 +167,25 @@ public class PowerPointServiceImplTest {
                                 87, 87, 124, 49
                         }), new DategraphData.Row("#00FF00", "Green Line", true, new double[]{
                                 12, 53, 63, 72
+                        })
+                )
+        );
+    }
+
+    private static DategraphData createTwoAxisMultipleSeriesDategraphData() {
+        return new DategraphData(
+                new long[]{
+                        1480690162, 1482394810, 1484099459, 1485804108
+                },
+                Arrays.asList(
+                        new DategraphData.Row("#FF0000", "Series 1a", false, new double[]{
+                                87, 87, 124, 49
+                        }), new DategraphData.Row("#00FF00", "Series 1b", false, new double[]{
+                                12, 53, 63, 72
+                        }), new DategraphData.Row("#0000FF", "Series 2a", true, new double[]{
+                                1, 2, 3, 4
+                        }), new DategraphData.Row("#00FFFF", "Series 2b", true, new double[]{
+                                4, 3, 2, 1
                         })
                 )
         );
