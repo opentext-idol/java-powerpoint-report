@@ -16,6 +16,15 @@
 
     <inceptionYear>2017</inceptionYear>
 
+    <developers>
+        <developer>
+            <name>Tung Jin Chew</name>
+            <email>tung-jin.chew@hpe.com</email>
+            <organization>HPE</organization>
+            <organizationUrl>http://www.hpe.com</organizationUrl>
+        </developer>
+    </developers>
+
     <scm>
         <connection>scm:git:git@github.com:hpe-idol/java-powerpoint-report.git</connection>
         <developerConnection>scm:git:git@github.com:hpe-idol/java-powerpoint-report.git</developerConnection>
