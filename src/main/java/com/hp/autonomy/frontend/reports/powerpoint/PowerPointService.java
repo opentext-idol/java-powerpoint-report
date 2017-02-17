@@ -22,11 +22,11 @@ public interface PowerPointService {
 
     XMLSlideShow sunburst(SunburstData data) throws SlideShowTemplate.LoadException;
 
-    XMLSlideShow table(String title, TableData tableData) throws SlideShowTemplate.LoadException;
+    XMLSlideShow table(TableData tableData, String title) throws SlideShowTemplate.LoadException;
 
-    XMLSlideShow map(String title, MapData map) throws SlideShowTemplate.LoadException;
+    XMLSlideShow map(MapData map, String title) throws SlideShowTemplate.LoadException;
 
-    XMLSlideShow list(String results, String sortBy, ListData documentList) throws SlideShowTemplate.LoadException;
+    XMLSlideShow list(ListData documentList, String results, String sortBy) throws SlideShowTemplate.LoadException;
 
     XMLSlideShow graph(DategraphData data) throws SlideShowTemplate.LoadException;
 

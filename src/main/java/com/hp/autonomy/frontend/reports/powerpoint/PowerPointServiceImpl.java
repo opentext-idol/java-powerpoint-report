@@ -300,11 +300,7 @@ public class PowerPointServiceImpl implements PowerPointService {
     }
 
     @Override
-    public XMLSlideShow table(
-            final String title,
-            final TableData tableData
-
-    ) throws SlideShowTemplate.LoadException {
+    public XMLSlideShow table(final TableData tableData, final String title) throws SlideShowTemplate.LoadException {
         final int rows = tableData.getRows(),
                   cols = tableData.getCols();
         final String[] data = tableData.getCells();
@@ -407,10 +403,7 @@ public class PowerPointServiceImpl implements PowerPointService {
     }
 
     @Override
-    public XMLSlideShow map(
-            final String title,
-            final MapData map
-    ) throws SlideShowTemplate.LoadException {
+    public XMLSlideShow map(final MapData map, final String title) throws SlideShowTemplate.LoadException {
         final String image = map.getImage();
 
         final XMLSlideShow ppt = loadTemplate().getSlideShow();
@@ -558,11 +551,7 @@ public class PowerPointServiceImpl implements PowerPointService {
     }
 
     @Override
-    public XMLSlideShow list(
-            final String results,
-            final String sortBy,
-            final ListData documentList
-    ) throws SlideShowTemplate.LoadException {
+    public XMLSlideShow list(final ListData documentList, final String results, final String sortBy) throws SlideShowTemplate.LoadException {
         final Document[] docs = documentList.getDocs();
 
         final XMLSlideShow ppt = loadTemplate().getSlideShow();

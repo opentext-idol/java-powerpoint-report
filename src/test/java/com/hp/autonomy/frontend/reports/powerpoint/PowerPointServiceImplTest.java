@@ -158,7 +158,7 @@ public class PowerPointServiceImplTest {
             new ListData.Document("title1", "5 months ago", "reference", "summary", sampleJPEGWithoutHeader)
         });
 
-        final XMLSlideShow pptx = pptxService.list("Showing 1 to 1 of 1 results", "Sort by Relevance", listData);
+        final XMLSlideShow pptx = pptxService.list(listData, "Showing 1 to 1 of 1 results", "Sort by Relevance");
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
@@ -168,7 +168,7 @@ public class PowerPointServiceImplTest {
     public void testListPagination() throws SlideShowTemplate.LoadException, IOException {
         final ListData listData = createListData();
 
-        final XMLSlideShow pptx = pptxService.list("Showing 1 to 10 of 10 results", "Sort by Relevance", listData);
+        final XMLSlideShow pptx = pptxService.list(listData, "Showing 1 to 10 of 10 results", "Sort by Relevance");
         testWrite(pptx);
 
         Assert.assertTrue(pptx.getSlides().size() > 1);
@@ -178,7 +178,7 @@ public class PowerPointServiceImplTest {
     public void testListWithoutHeaders() throws SlideShowTemplate.LoadException, IOException {
         final ListData listData = createListData();
 
-        final XMLSlideShow pptx = pptxService.list(null, null, listData);
+        final XMLSlideShow pptx = pptxService.list(listData, null, null);
         testWrite(pptx);
 
         Assert.assertTrue(pptx.getSlides().size() > 1);
@@ -203,7 +203,7 @@ public class PowerPointServiceImplTest {
     public void testTable() throws SlideShowTemplate.LoadException, IOException {
         final TableData tableData = createTableData();
 
-        final XMLSlideShow pptx = pptxService.table("Animals", tableData);
+        final XMLSlideShow pptx = pptxService.table(tableData, "Animals");
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
@@ -213,7 +213,7 @@ public class PowerPointServiceImplTest {
     public void testTableWithoutTitle() throws SlideShowTemplate.LoadException, IOException {
         final TableData tableData = createTableData();
 
-        final XMLSlideShow pptx = pptxService.table(null, tableData);
+        final XMLSlideShow pptx = pptxService.table(tableData, null);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
@@ -247,7 +247,7 @@ public class PowerPointServiceImplTest {
     public void testMap() throws SlideShowTemplate.LoadException, IOException {
         final MapData map = createMapData();
 
-        final XMLSlideShow pptx = pptxService.map("Test Map", map);
+        final XMLSlideShow pptx = pptxService.map(map, "Test Map");
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
@@ -257,7 +257,7 @@ public class PowerPointServiceImplTest {
     public void testMapWithoutTitle() throws SlideShowTemplate.LoadException, IOException {
         final MapData map = createMapData();
 
-        final XMLSlideShow pptx = pptxService.map(null, map);
+        final XMLSlideShow pptx = pptxService.map(map, null);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
