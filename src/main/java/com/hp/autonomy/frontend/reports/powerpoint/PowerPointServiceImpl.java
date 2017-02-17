@@ -146,12 +146,12 @@ public class PowerPointServiceImpl implements PowerPointService {
 
     @Override
     public XMLSlideShow topicmap(
-            final TopicMapData data
+            final TopicMapData topicmap
     ) throws SlideShowTemplate.LoadException {
         final XMLSlideShow ppt = loadTemplate().getSlideShow();
         final XSLFSlide slide = ppt.createSlide();
 
-        addTopicMap(slide, createPageAnchor(ppt), data);
+        addTopicMap(slide, createPageAnchor(ppt), topicmap);
 
         return ppt;
     }
@@ -214,9 +214,9 @@ public class PowerPointServiceImpl implements PowerPointService {
 
     @Override
     public XMLSlideShow sunburst(
-            final SunburstData data
+            final SunburstData sunburst
     ) throws SlideShowTemplate.LoadException {
-        if(!data.validateInput()) {
+        if(!sunburst.validateInput()) {
             throw new IllegalArgumentException("Number of values should match the number of categories");
         }
 
@@ -226,7 +226,7 @@ public class PowerPointServiceImpl implements PowerPointService {
 
         final int shapeId = 1;
 
-        addSunburst(template, slide, null, data, shapeId, "relId" + shapeId);
+        addSunburst(template, slide, null, sunburst, shapeId, "relId" + shapeId);
 
         return ppt;
     }
