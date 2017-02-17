@@ -10,6 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Template settings which affect rendering, set on a service-wide level.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

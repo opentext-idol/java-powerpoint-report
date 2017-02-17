@@ -8,6 +8,11 @@ package com.hp.autonomy.frontend.reports.powerpoint.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Anchor points to use when drawing a report. All units should be fractional between 0 and 1,
+ * e.g. x=0.1 means start drawing 10% from the left edge of the available space, and
+ *      w=0.5 means we only draw on half of the available width.
+ */
 @Data
 @NoArgsConstructor
 public class Anchor {

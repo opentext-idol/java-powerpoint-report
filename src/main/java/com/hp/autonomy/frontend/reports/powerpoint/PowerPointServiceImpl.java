@@ -97,6 +97,9 @@ import static com.hp.autonomy.frontend.reports.powerpoint.dto.ListData.Document;
 import static com.hp.autonomy.frontend.reports.powerpoint.dto.MapData.Marker;
 import static org.apache.poi.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
 
+/**
+ * Default implementation of PowerPointService, see README.md for usage instructions.
+ */
 public class PowerPointServiceImpl implements PowerPointService {
 
     private static final String BASE64_SCHEMA= "data:";
