@@ -18,5 +18,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TemplateSettings {
 
+    /**
+     * Anchor points which control how much of the powerpoint area we'll draw on, useful for reserving
+     * space for your own graphics/logos in the master slide.
+     */
     private Anchor anchor = new Anchor();
 }

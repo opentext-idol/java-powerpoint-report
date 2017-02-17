@@ -220,13 +220,13 @@ public class PowerPointServiceImplTest {
     }
 
     private static TableData createTableData() {
-        return new TableData(new String[]{
+        return new TableData(4, 2, new String[]{
                 "Animal", "Count",
                 "Cat", "1",
                 "Dog", "1",
                 "Mouse", "1",
                 "Fish", "1"
-            }, 4, 2);
+            });
     }
 
     @Test

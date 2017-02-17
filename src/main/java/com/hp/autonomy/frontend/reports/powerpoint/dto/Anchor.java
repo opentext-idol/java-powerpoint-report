@@ -24,6 +24,16 @@ public class Anchor {
         this.height = height;
     }
 
-    private double x, y, width = 1, height = 1;
+    /** The left margin of the visualization, expressed as fraction between 0 and 1 of the available space. */
+    private double x;
+
+    /** The top margin of the visualization, expressed as fraction between 0 and 1 of the available space. */
+    private double y;
+
+    /** The width of the visualization, expressed as fraction between 0 and 1 of the available space. */
+    private double width = 1;
+
+    /** The height of the visualization, expressed as fraction between 0 and 1 of the available space. */
+    private double height = 1;
 
 }

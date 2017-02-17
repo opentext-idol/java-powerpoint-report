@@ -9,23 +9,48 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO to represent a map.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class MapData implements ComposableElement {
 
+    /**
+     * Base64-encoded PNG/JPEG data URL, should start with e.g. 'data:image/jpeg;base64,'.
+     */
     private String image;
+
+    /**
+     * Array of markers.
+     */
     private Marker[] markers;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Marker {
-        private double x, y;
+
+        /** x-coordinate of the marker, represented as a fraction between 0 and 1. */
+        private double x;
+
+        /** y-coordinate of the marker, represented as a fraction between 0 and 1. */
+        private double y;
+
+        /** optional text description of the marker, will be used as a on-hover tooltip in PowerPoint when presenting on non-cluster markers. */
         private String text;
+
+        /** flag indicating if the marker is a cluster marker or normal cluster (which are rendered differently). */
         private boolean cluster;
+
+        /** colour of the marker, expressed as a hexadecimal string e.g. '#FF0000'. */
         private String color;
+
+        /** colour of the marker text, expressed as a hexadecimal string e.g. '#FF0000'. */
         private String fontColor;
+
+        /** whether a cluster marker is faded.  */
         private boolean fade;
     }
 }

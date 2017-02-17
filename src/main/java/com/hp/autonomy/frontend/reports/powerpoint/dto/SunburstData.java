@@ -9,12 +9,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO to represent a one-level Sunburst chart
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class SunburstData implements ComposableElement {
+    /** List of categories. */
     private String[] categories;
+
+    /** List of values for each category, should be the same length as the category array. */
     private double[] values;
+
+    /** Optional title to put on the chart. */
     private String title;
 
     public boolean validateInput() {

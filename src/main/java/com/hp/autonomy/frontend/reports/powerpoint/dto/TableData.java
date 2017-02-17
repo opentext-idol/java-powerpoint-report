@@ -9,15 +9,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO to represent a table of data.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TableData implements ComposableElement {
 
-    String[] cells;
+    /** Number of rows. */
+    private int rows;
 
-    int rows;
-    int cols;
+    /** Number of columns. */
+    private int cols;
+
+    /** Contents of the table in order, there should be {@code rows * cols} cells. List values from the first row, then the second row, and so on. */
+    private String[] cells;
 
     public boolean validateInput() {
         return rows > 0 && cols > 0 && cells != null && cells.length == rows * cols;
