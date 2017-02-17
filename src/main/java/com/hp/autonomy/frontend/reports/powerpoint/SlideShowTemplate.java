@@ -26,7 +26,10 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTPoint2D;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTPositiveSize2D;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTGraphicalObjectFrame;
 
-public class SlideShowTemplate {
+/**
+ * Internal implementation class to keep track of required elements from the template.
+ */
+class SlideShowTemplate {
 
     private static final String RELATION_NAMESPACE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
@@ -34,8 +37,7 @@ public class SlideShowTemplate {
     private final ImmutablePair<XSLFChart, CTGraphicalObjectFrame> doughnutChart;
     private final ImmutablePair<XSLFChart, CTGraphicalObjectFrame> graphChart;
 
-
-    public SlideShowTemplate(final InputStream inputStream) throws LoadException {
+    SlideShowTemplate(final InputStream inputStream) throws TemplateLoadException {
         try {
             // There should be a chart in slide 1 and a chart in slide 2
             pptx = new XMLSlideShow(inputStream);
@@ -43,7 +45,7 @@ public class SlideShowTemplate {
             final List<XSLFSlide> slides = pptx.getSlides();
 
             if (slides.size() != 2) {
-                throw new LoadException("Template powerpoint should have two slides, doughnut chart on slide 1 and time-axis line chart on slide 2");
+                throw new TemplateLoadException("Template powerpoint should have two slides, doughnut chart on slide 1 and time-axis line chart on slide 2");
             }
 
             XSLFSlide slide = slides.get(0);
@@ -51,13 +53,13 @@ public class SlideShowTemplate {
             doughnutChart = getChart(slide, "First slide should have a doughnut chart");
 
             if (doughnutChart == null || ArrayUtils.isEmpty(doughnutChart.getLeft().getCTChart().getPlotArea().getDoughnutChartArray())) {
-                throw new LoadException("First slide has the wrong chart type, should have a doughnut chart");
+                throw new TemplateLoadException("First slide has the wrong chart type, should have a doughnut chart");
             }
 
             graphChart = getChart(slides.get(1), "Second slide should have a time-axis line chart");
 
             if (graphChart == null || ArrayUtils.isEmpty(graphChart.getLeft().getCTChart().getPlotArea().getLineChartArray())) {
-                throw new LoadException("Second slide has the wrong chart type, should have a time-axis line chart");
+                throw new TemplateLoadException("Second slide has the wrong chart type, should have a time-axis line chart");
             }
 
             // Remove the slides afterwards
@@ -65,31 +67,31 @@ public class SlideShowTemplate {
             pptx.removeSlide(0);
         }
         catch(IOException e) {
-            throw new LoadException("Error while loading slide show", e);
+            throw new TemplateLoadException("Error while loading slide show", e);
         }
     }
 
-    public XSLFChart getDoughnutChart() {
+    XSLFChart getDoughnutChart() {
         return doughnutChart.getLeft();
     }
 
-    public CTGraphicalObjectFrame getDoughnutChartShapeXML(final String relId, final int shapeId, final String shapeName, final Rectangle2D.Double anchor) {
+    CTGraphicalObjectFrame getDoughnutChartShapeXML(final String relId, final int shapeId, final String shapeName, final Rectangle2D.Double anchor) {
         return cloneShapeXML(doughnutChart.getRight(), relId, shapeId, shapeName, anchor);
     }
 
-    public XSLFChart getGraphChart() {
+    XSLFChart getGraphChart() {
         return graphChart.getLeft();
     }
 
-    public CTGraphicalObjectFrame getGraphChartShapeXML(final String relId, final int shapeId, final String shapeName, final Rectangle2D.Double anchor) {
+    CTGraphicalObjectFrame getGraphChartShapeXML(final String relId, final int shapeId, final String shapeName, final Rectangle2D.Double anchor) {
         return cloneShapeXML(graphChart.getRight(), relId, shapeId, shapeName, anchor);
     }
 
-    public XMLSlideShow getSlideShow() {
+    XMLSlideShow getSlideShow() {
         return pptx;
     }
 
-    private ImmutablePair<XSLFChart, CTGraphicalObjectFrame> getChart(final XSLFSlide slide, final String error) throws LoadException {
+    private ImmutablePair<XSLFChart, CTGraphicalObjectFrame> getChart(final XSLFSlide slide, final String error) throws TemplateLoadException {
         for(POIXMLDocumentPart.RelationPart part : slide.getRelationParts()) {
             if (part.getDocumentPart() instanceof XSLFChart) {
                 final String relId = part.getRelationship().getId();
@@ -111,7 +113,7 @@ public class SlideShowTemplate {
             }
         }
 
-        throw new LoadException(error);
+        throw new TemplateLoadException(error);
     }
 
     private CTGraphicalObjectFrame cloneShapeXML(final CTGraphicalObjectFrame base, final String relId, final int shapeId, final String shapeName, final Rectangle2D.Double anchor) {
@@ -165,13 +167,4 @@ public class SlideShowTemplate {
         return copy;
     }
 
-    public static class LoadException extends Exception {
-        public LoadException(final String message) {
-            super(message);
-        }
-
-        public LoadException(final String message, final Throwable cause) {
-            super(message, cause);
-        }
-    }
 }

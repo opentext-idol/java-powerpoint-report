@@ -58,12 +58,12 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testValidateCorrectTemplate() throws SlideShowTemplate.LoadException, IOException {
+    public void testValidateCorrectTemplate() throws TemplateLoadException, IOException {
         testResourceAsTemplate("validTemplateWithLogo.pptx");
     }
 
-    @Test(expected = SlideShowTemplate.LoadException.class)
-    public void testValidateBlankFile() throws SlideShowTemplate.LoadException, IOException {
+    @Test(expected = TemplateLoadException.class)
+    public void testValidateBlankFile() throws TemplateLoadException, IOException {
         // Testing an empty file should not work.
         final File blankFile = createTempFile("blank", ".pptx");
         blankFile.deleteOnExit();
@@ -74,37 +74,37 @@ public class PowerPointServiceImplTest {
         ).validateTemplate();
     }
 
-    @Test(expected = SlideShowTemplate.LoadException.class)
-    public void testValidateImageFile() throws SlideShowTemplate.LoadException, IOException {
+    @Test(expected = TemplateLoadException.class)
+    public void testValidateImageFile() throws TemplateLoadException, IOException {
         // This isn't a template at all.
         testResourceAsTemplate("invalidTemplate.jpg");
     }
 
-    @Test(expected = SlideShowTemplate.LoadException.class)
-    public void testValidateWordFile() throws SlideShowTemplate.LoadException, IOException {
+    @Test(expected = TemplateLoadException.class)
+    public void testValidateWordFile() throws TemplateLoadException, IOException {
         // You actually get a different error from the POI for this, which is why we explicitly test it.
         testResourceAsTemplate("invalidTemplate.docx");
     }
 
-    @Test(expected = SlideShowTemplate.LoadException.class)
-    public void testValidateZipFile() throws SlideShowTemplate.LoadException, IOException {
+    @Test(expected = TemplateLoadException.class)
+    public void testValidateZipFile() throws TemplateLoadException, IOException {
         // PowerPoint files are internally zip files, so it's plausible that we'd need to treat this specially.
         testResourceAsTemplate("invalidTemplate.zip");
     }
 
-    @Test(expected = SlideShowTemplate.LoadException.class)
-    public void testValidateWrongSlideCountPowerPointFile() throws SlideShowTemplate.LoadException, IOException {
+    @Test(expected = TemplateLoadException.class)
+    public void testValidateWrongSlideCountPowerPointFile() throws TemplateLoadException, IOException {
         // This template is a valid PowerPoint file with all the right components, but has the wrong number of slides.
         testResourceAsTemplate("invalidTemplate.pptx");
     }
 
-    @Test(expected = SlideShowTemplate.LoadException.class)
-    public void testValidateWrongComponentsPowerPointFile() throws SlideShowTemplate.LoadException, IOException {
+    @Test(expected = TemplateLoadException.class)
+    public void testValidateWrongComponentsPowerPointFile() throws TemplateLoadException, IOException {
         // This template is a valid PowerPoint file, but has a textbox instead of a line chart on the 2nd slide.
         testResourceAsTemplate("templateMissingComponents.pptx");
     }
 
-    private static void testResourceAsTemplate(final String resource) throws SlideShowTemplate.LoadException {
+    private static void testResourceAsTemplate(final String resource) throws TemplateLoadException {
         new PowerPointServiceImpl(
                 () -> PowerPointServiceImplTest.class.getResourceAsStream(resource),
                 TemplateSettingsSource.DEFAULT
@@ -112,7 +112,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testDateGraphTwoAxes() throws SlideShowTemplate.LoadException, IOException {
+    public void testDateGraphTwoAxes() throws TemplateLoadException, IOException {
         final DategraphData data = createTwoAxisDategraphData();
 
         final XMLSlideShow pptx = pptxService.graph(data);
@@ -122,7 +122,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testDateGraphSingleAxis() throws SlideShowTemplate.LoadException, IOException {
+    public void testDateGraphSingleAxis() throws TemplateLoadException, IOException {
         final DategraphData data = createSingleAxisDategraphData();
 
         final XMLSlideShow pptx = pptxService.graph(data);
@@ -132,7 +132,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testDateGraphMultipleSeries() throws SlideShowTemplate.LoadException, IOException {
+    public void testDateGraphMultipleSeries() throws TemplateLoadException, IOException {
         final DategraphData data = createTwoAxisMultipleSeriesDategraphData();
 
         final XMLSlideShow pptx = pptxService.graph(data);
@@ -142,7 +142,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testSunburst() throws SlideShowTemplate.LoadException, IOException {
+    public void testSunburst() throws TemplateLoadException, IOException {
         final SunburstData sunburst = createSunburstData();
 
         final XMLSlideShow pptx = pptxService.sunburst(sunburst);
@@ -153,7 +153,7 @@ public class PowerPointServiceImplTest {
 
 
     @Test
-    public void testListSingle() throws SlideShowTemplate.LoadException, IOException {
+    public void testListSingle() throws TemplateLoadException, IOException {
         final ListData listData = new ListData(new ListData.Document[]{
             new ListData.Document("title1", "5 months ago", "reference", "summary", sampleJPEGWithoutHeader)
         });
@@ -165,7 +165,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testListPagination() throws SlideShowTemplate.LoadException, IOException {
+    public void testListPagination() throws TemplateLoadException, IOException {
         final ListData listData = createListData();
 
         final XMLSlideShow pptx = pptxService.list(listData, "Showing 1 to 10 of 10 results", "Sort by Relevance");
@@ -175,7 +175,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testListWithoutHeaders() throws SlideShowTemplate.LoadException, IOException {
+    public void testListWithoutHeaders() throws TemplateLoadException, IOException {
         final ListData listData = createListData();
 
         final XMLSlideShow pptx = pptxService.list(listData, null, null);
@@ -200,7 +200,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testTable() throws SlideShowTemplate.LoadException, IOException {
+    public void testTable() throws TemplateLoadException, IOException {
         final TableData tableData = createTableData();
 
         final XMLSlideShow pptx = pptxService.table(tableData, "Animals");
@@ -210,7 +210,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testTableWithoutTitle() throws SlideShowTemplate.LoadException, IOException {
+    public void testTableWithoutTitle() throws TemplateLoadException, IOException {
         final TableData tableData = createTableData();
 
         final XMLSlideShow pptx = pptxService.table(tableData, null);
@@ -230,7 +230,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testTopicMap() throws SlideShowTemplate.LoadException, IOException {
+    public void testTopicMap() throws TemplateLoadException, IOException {
         final TopicMapData topicMap = createTopicMapData();
 
         final XMLSlideShow pptx = pptxService.topicmap(topicMap);
@@ -244,7 +244,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testMap() throws SlideShowTemplate.LoadException, IOException {
+    public void testMap() throws TemplateLoadException, IOException {
         final MapData map = createMapData();
 
         final XMLSlideShow pptx = pptxService.map(map, "Test Map");
@@ -254,7 +254,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testMapWithoutTitle() throws SlideShowTemplate.LoadException, IOException {
+    public void testMapWithoutTitle() throws TemplateLoadException, IOException {
         final MapData map = createMapData();
 
         final XMLSlideShow pptx = pptxService.map(map, null);
@@ -268,7 +268,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testReport() throws SlideShowTemplate.LoadException, IOException {
+    public void testReport() throws TemplateLoadException, IOException {
         final DategraphData dategraph = createTwoAxisDategraphData();
 
         final SunburstData sunburst = createSunburstData();
@@ -292,7 +292,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testComplicatedReport() throws SlideShowTemplate.LoadException, IOException {
+    public void testComplicatedReport() throws TemplateLoadException, IOException {
         final ReportData report = createComplicatedReport(3);
 
         final XMLSlideShow pptx = pptxService.report(report);
@@ -302,7 +302,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testComplicatedReportWithoutWidgetMargins() throws SlideShowTemplate.LoadException, IOException {
+    public void testComplicatedReportWithoutWidgetMargins() throws TemplateLoadException, IOException {
         final ReportData report = createComplicatedReport(0);
 
         final XMLSlideShow pptx = pptxService.report(report);
@@ -312,7 +312,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testComplicatedReportWithoutTextOrMargins() throws SlideShowTemplate.LoadException, IOException {
+    public void testComplicatedReportWithoutTextOrMargins() throws TemplateLoadException, IOException {
         final ReportData report = createComplicatedReport(0);
 
         for(ReportData.Child child : report.getChildren()) {
@@ -343,7 +343,7 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
-    public void testReportByDeserialization() throws SlideShowTemplate.LoadException, IOException {
+    public void testReportByDeserialization() throws TemplateLoadException, IOException {
         final ReportData report = new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("report.json"), ReportData.class);
 
         final XMLSlideShow pptx = pptxService.report(report);
