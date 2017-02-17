@@ -33,8 +33,11 @@ class SlideShowTemplate {
 
     private static final String RELATION_NAMESPACE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
+    /** Parsed PowerPoint file from the template. */
     private final XMLSlideShow pptx;
+    /** Doughnut chart XML object, cached so we can clone it. */
     private final ImmutablePair<XSLFChart, CTGraphicalObjectFrame> doughnutChart;
+    /** Line chart XML object, cached so we can clone it.  */
     private final ImmutablePair<XSLFChart, CTGraphicalObjectFrame> graphChart;
 
     SlideShowTemplate(final InputStream inputStream) throws TemplateLoadException {
@@ -71,26 +74,61 @@ class SlideShowTemplate {
         }
     }
 
+    /**
+     * Get the doughnut chart from the first slide. Do not modify this object.
+     * @return the doughnut chart from the first slide
+     */
     XSLFChart getDoughnutChart() {
         return doughnutChart.getLeft();
     }
 
+    /**
+     * Creates a new clone of the doughnut chart XML from the first slide, for inclusion into a slide's shapes.
+     * @param relId the relation id to the chart.
+     * @param shapeId the shape id of the new shape.
+     * @param shapeName the name of your choice for the shape.
+     * @param anchor where the shape should be positioned on screen, or null to use the same position as the cloned chart.
+     * @return a new clone of the doughnut chart XML.
+     */
     CTGraphicalObjectFrame getDoughnutChartShapeXML(final String relId, final int shapeId, final String shapeName, final Rectangle2D.Double anchor) {
         return cloneShapeXML(doughnutChart.getRight(), relId, shapeId, shapeName, anchor);
     }
 
+    /**
+     * Get the graph line chart from the second slide. Do not modify this object.
+     * @return the graph line chart from the second slide
+     */
     XSLFChart getGraphChart() {
         return graphChart.getLeft();
     }
 
+    /**
+     * Creates a new clone of the graph chart XML from the first slide, for inclusion into a slide's shapes.
+     * @param relId the relation id to the chart.
+     * @param shapeId the shape id of the new shape.
+     * @param shapeName the name of your choice for the shape.
+     * @param anchor where the shape should be positioned on screen, or null to use the same position as the cloned chart.
+     * @return a new clone of the graph chart XML.
+     */
     CTGraphicalObjectFrame getGraphChartShapeXML(final String relId, final int shapeId, final String shapeName, final Rectangle2D.Double anchor) {
         return cloneShapeXML(graphChart.getRight(), relId, shapeId, shapeName, anchor);
     }
 
+    /**
+     * Get the template presentation with all slides removed.
+     * @return the template presentation without any slides.
+     */
     XMLSlideShow getSlideShow() {
         return pptx;
     }
 
+    /**
+     * Given an existing slide, search its relations to find a chart object.
+     * @param slide a slide from the template.
+     * @param error if we can't find a slide, this error message will be returned as the exception.
+     * @return a pair containing the chart.xml data and the graphical object which represented it on the slide.
+     * @throws TemplateLoadException if we can't find a chart object.
+     */
     private ImmutablePair<XSLFChart, CTGraphicalObjectFrame> getChart(final XSLFSlide slide, final String error) throws TemplateLoadException {
         for(POIXMLDocumentPart.RelationPart part : slide.getRelationParts()) {
             if (part.getDocumentPart() instanceof XSLFChart) {
@@ -116,6 +154,15 @@ class SlideShowTemplate {
         throw new TemplateLoadException(error);
     }
 
+    /**
+     * Utility function to clone the graphical object which represents a chart on a slide.
+     * @param base the object to clone.
+     * @param relId the new relation ID we should insert.
+     * @param shapeId the new shape ID we should insert.
+     * @param shapeName the new shape name we should insert.
+     * @param anchor the bounds of the new shape object in PowerPoint coordinates, if set, or null to use the existing clone's bounds.
+     * @return a new clone object with the desired properties.
+     */
     private CTGraphicalObjectFrame cloneShapeXML(final CTGraphicalObjectFrame base, final String relId, final int shapeId, final String shapeName, final Rectangle2D.Double anchor) {
         /* Based on viewing the raw chart.
           <p:graphicFrame>
