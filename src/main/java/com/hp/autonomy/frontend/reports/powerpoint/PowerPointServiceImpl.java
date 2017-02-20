@@ -91,6 +91,7 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTGradientStopList;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTHyperlink;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTSRgbColor;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTSolidColorFillProperties;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTTextNormalAutofit;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTShape;
 
 import static com.hp.autonomy.frontend.reports.powerpoint.dto.ListData.Document;
@@ -192,11 +193,37 @@ public class PowerPointServiceImpl implements PowerPointService {
             textRun.setFontColor(Color.WHITE);
             textRun.setBold(true);
 
+            final CTShape cs = (CTShape) shape.getXmlObject();
+
+            double max = 100, min = 1, scale = 100;
+            final CTTextNormalAutofit autoFit = cs.getTxBody().getBodyPr().getNormAutofit();
+            final double availHeight = path.getBounds2D().getHeight();
+            final int RESIZE_ATTEMPTS = 10;
+
+            for (int attempts = 0; attempts < RESIZE_ATTEMPTS; ++attempts) {
+                // PowerPoint doesn't resize the text till you edit it once, which means the text initially looks too
+                //   large when you first view the slide; so we binary-chop to get a sensible initial approximation.
+                // OpenOffice does the text resize on load so it doesn't have this problem.
+                autoFit.setFontScale(Math.max(1, (int)(scale * 1000)));
+
+                final double textHeight = shape.getTextHeight();
+                if (textHeight < availHeight) {
+                    min = scale;
+                    scale = 0.5 * (min + max);
+                }
+                else if (textHeight > availHeight) {
+                    max = scale;
+                    scale = 0.5 * (min + max);
+                }
+                else {
+                    break;
+                }
+            }
+
             final int opacity = (int) (100000 * reqPath.getOpacity());
             final Color c1 = Color.decode(reqPath.getColor());
             final Color c2 = Color.decode(reqPath.getColor2());
 
-            final CTShape cs = (CTShape) shape.getXmlObject();
             final CTGradientFillProperties gFill = cs.getSpPr().addNewGradFill();
             gFill.addNewLin().setAng(3300000);
             final CTGradientStopList list = gFill.addNewGsLst();
