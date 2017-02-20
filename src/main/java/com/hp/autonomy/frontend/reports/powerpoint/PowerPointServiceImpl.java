@@ -103,18 +103,32 @@ import static org.apache.poi.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
  */
 public class PowerPointServiceImpl implements PowerPointService {
 
+    /** The expected schema prefix for a data url. */
     private static final String BASE64_SCHEMA= "data:";
+    /** The expected schema prefix for a JPEG-encoded base64 data url. */
     private static final String BASE64_JPEG = BASE64_SCHEMA + "image/jpeg;base64,";
+    /** The expected schema prefix for a PNG-encoded base64 data url. */
     private static final String BASE64_PNG = BASE64_SCHEMA + "image/png;base64,";
 
+    /** The source for the template file. */
     private final TemplateSource pptxTemplate;
+
+    /** The source for template settings, like anchor points etc. */
     private final TemplateSettingsSource pptxSettings;
 
+    /**
+     * Constructor for the PowerPointServiceImpl, allowing you to provide your own template and settings.
+     * @param pptxTemplate what template .pptx file to use.
+     * @param pptxSettings what template settings to use.
+     */
     public PowerPointServiceImpl(final TemplateSource pptxTemplate, final TemplateSettingsSource pptxSettings) {
         this.pptxTemplate = pptxTemplate;
         this.pptxSettings = pptxSettings;
     }
 
+    /**
+     * Constructor which uses the default template and default settings, which don't have any logos or margins reserved.
+     */
     public PowerPointServiceImpl() {
         this(TemplateSource.DEFAULT, TemplateSettingsSource.DEFAULT);
     }
@@ -124,6 +138,11 @@ public class PowerPointServiceImpl implements PowerPointService {
         loadTemplate();
     }
 
+    /**
+     * Utility function to load and parse the template file.
+     * @return the internal parsed template and chart information.
+     * @throws TemplateLoadException if any errors occurred.
+     */
     private SlideShowTemplate loadTemplate() throws TemplateLoadException {
         try(InputStream inputStream = pptxTemplate.getInputStream()) {
             return new SlideShowTemplate(inputStream);
@@ -136,10 +155,22 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
     }
 
+    /**
+     * Creates a bounding rectangle in PowerPoint coordinates to draw on for a given PowerPoint slideshow, using the
+     *   anchor points from the settings.
+     * @param ppt the PowerPoint presentation to use.
+     * @return bounding rectangle in PowerPoint coordinates.
+     */
     private Rectangle2D.Double createPageAnchor(final XMLSlideShow ppt) {
         return createPageAnchor(ppt, this.pptxSettings.getSettings().getAnchor());
     }
 
+    /**
+     * Convert provided anchor points from fractional units (0-1 range) to PowerPoint coordinates.
+     * @param ppt the PowerPoint presentation to use.
+     * @param anchor the anchor in fractional (0-1) units.
+     * @return bounding rectangle in PowerPoint coordinates.
+     */
     private static Rectangle2D.Double createPageAnchor(final XMLSlideShow ppt, final Anchor anchor) {
         final Dimension pageSize = ppt.getPageSize();
         final double availW = pageSize.getWidth();
@@ -160,6 +191,12 @@ public class PowerPointServiceImpl implements PowerPointService {
         return ppt;
     }
 
+    /**
+     * Internal implementation to add a topic map to a slide.
+     * @param slide the slide to add to.
+     * @param anchor bounding rectangle to draw onto, in PowerPoint coordinates.
+     * @param data the topic map data.
+     */
     private static void addTopicMap(final XSLFSlide slide, final Rectangle2D.Double anchor, final TopicMapData data) {
         for(final TopicMapData.Path reqPath : data.getPaths()) {
             final XSLFFreeformShape shape = slide.createFreeform();
@@ -261,6 +298,17 @@ public class PowerPointServiceImpl implements PowerPointService {
         return ppt;
     }
 
+    /**
+     * Internal implementation to add a sunburst chart (actually a doughnut chart) to a slide, based on a template.
+     * @param template the parsed template information.
+     * @param slide the slide to add to.
+     * @param anchor optional bounding rectangle to draw onto, in PowerPoint coordinates.
+     *               If null, we'll use the bounds from the original template chart.
+     * @param data the sunburst data.
+     * @param shapeId the slide shape ID, should be unique within the slide.
+     * @param relId the relation ID to the chart data.
+     * @throws TemplateLoadException if we can't create the sunburst; most likely due to an invalid template.
+     */
     private static void addSunburst(final SlideShowTemplate template, final XSLFSlide slide, final Rectangle2D.Double anchor, final SunburstData data, final int shapeId, final String relId) throws TemplateLoadException {
         final String[] categories = data.getCategories();
         final double[] values = data.getValues();
@@ -359,6 +407,13 @@ public class PowerPointServiceImpl implements PowerPointService {
         return ppt;
     }
 
+    /**
+     * Utility function to compute bounds for a shape in PowerPoint coordinates, given the bounds of the original
+     *   free space available and a measure of the shape's height.
+     * @param pageAnchor the available bounds in PowerPoint coordinates.
+     * @param space the height of the shape.
+     * @return the bounds for the shape.
+     */
     private static Rectangle2D.Double startingSpace(final Rectangle2D.Double pageAnchor, final double space) {
         return new Rectangle2D.Double(
                 pageAnchor.getMinX(),
@@ -367,6 +422,13 @@ public class PowerPointServiceImpl implements PowerPointService {
                 space);
     }
 
+    /**
+     * Utility function to compute the bounds for the remaining space, given the bounds of the original
+     *   free space available and the amount of vertical height already taken.
+     * @param pageAnchor the available bounds in PowerPoint coordinates.
+     * @param usedSpace how much height is already taken.
+     * @return the bounds for the remaining space under the used space.
+     */
     private static Rectangle2D.Double remainingSpace(final Rectangle2D.Double pageAnchor, final double usedSpace) {
         return new Rectangle2D.Double(
                 pageAnchor.getMinX(),
@@ -375,6 +437,16 @@ public class PowerPointServiceImpl implements PowerPointService {
                 Math.max(1, pageAnchor.getHeight() - usedSpace));
     }
 
+    /**
+     * Internal implementation to add a table to a slide.
+     * @param slide the slide to add to.
+     * @param anchor bounding rectangle to draw onto, in PowerPoint coordinates.
+     * @param rows number of rows.
+     * @param cols number of columns.
+     * @param data the data for each cell, laid out row-by-row.
+     * @param crop whether we should try and crop the table to the bounding rectangle by removing extra rows.
+     *               This doesn't guarantee an exact match, since the font metrics may not exactly match.
+     */
     private static void addTable(final XSLFSlide slide, final Rectangle2D.Double anchor, final int rows, final int cols, final String[] data, final boolean crop) {
         final XSLFTable table = slide.createTable(rows, cols);
 
@@ -417,8 +489,8 @@ public class PowerPointServiceImpl implements PowerPointService {
             final double nextH = tableH + table.getRowHeight(row);
 
             if (crop && nextH > anchor.getHeight() && row < rows - 1) {
+                // If it doesn't fit, merge all the final row cells together and label them with an ellipsis.
                 table.mergeCells(row, row, 0, cols - 1);
-                // ellipsis
                 table.getCell(row, 0).setText("\u2026");
                 break;
             }
@@ -464,6 +536,12 @@ public class PowerPointServiceImpl implements PowerPointService {
         return ppt;
     }
 
+    /**
+     * Utility function to add base64-encoded PNG or JPEG data to a PowerPoint presentation.
+     * @param ppt the presentation to add to.
+     * @param image the image, encoded as a base64 data: schema URL.
+     * @return the picture data.
+     */
     private static XSLFPictureData addPictureData(final XMLSlideShow ppt, final String image) {
         final PictureData.PictureType type;
         if(image.startsWith(BASE64_PNG)) {
@@ -480,10 +558,25 @@ public class PowerPointServiceImpl implements PowerPointService {
         return ppt.addPicture(bytes, type);
     }
 
+    /**
+     * Utility function to add a prefix to a base-64 encoded image, if it doesn't already start with a data: URL schema.
+     * @param prefix the prefix to add.
+     * @param image the image as a string.
+     * @return the image unmodified if it has the data: prefix, or the prefix concatenated with image string otherwise.
+     */
     private static String ensureDataPrefix(final String prefix, final String image) {
         return image.startsWith(BASE64_SCHEMA) ? image : prefix + image;
     }
 
+    /**
+     * Internal implementation to add an image (a world map, though other image data is also fine) to a slide.
+     *   Preserves the original image's aspect ratio, leaving blank space below and to the sides of the image.
+     * @param slide the slide to add to.
+     * @param anchor bounding rectangle to draw onto, in PowerPoint coordinates.
+     * @param picture the picture data.
+     * @param markers an array of markers to draw over the map.
+     * @return the picture shape object added to the slide.
+     */
     private static XSLFPictureShape addMap(final XSLFSlide slide, final Rectangle2D.Double anchor, final XSLFPictureData picture, final Marker[] markers) {
         double tgtW = anchor.getWidth(),
                tgtH = anchor.getHeight();
@@ -576,6 +669,12 @@ public class PowerPointServiceImpl implements PowerPointService {
         return canvas;
     }
 
+    /**
+     * Utility function to create a semi-transparent variant of a given colour.
+     * @param color the original colour.
+     * @param a alpha, as a value from 0 (transparent) to 255 (opaque).
+     * @return colour with transparency set.
+     */
     private static Color transparentColor(final Color color, final int a) {
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), a);
     }
@@ -591,6 +690,18 @@ public class PowerPointServiceImpl implements PowerPointService {
         return ppt;
     }
 
+    /**
+     * Internal implementation to add a list of documents to a presentation; either as a single slide or a series of slides.
+     * @param ppt the presentation to add to.
+     * @param sl the slide to add to (can be null if pagination is enabled).
+     * @param anchor bounding rectangle to draw onto, in PowerPoint coordinates.
+     * @param paginate whether to render results as multiple slides if they don't fit on one slide.
+     * @param docs the documents to render.
+     * @param results optional string to render into the top-left corner of the available space.
+     *                  Will appear on each page if pagination is enabled.
+     * @param sortBy optional string to render into the top-right corner of the available space.
+     *                  Will appear on each page if pagination is enabled.
+     */
     private static void addList(final XMLSlideShow ppt, XSLFSlide sl, final Rectangle2D.Double anchor, final boolean paginate, final Document[] docs, final String results, final String sortBy) {
         final double
                 // How much space to leave at the left and right edge of the slide
@@ -767,6 +878,14 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
     }
 
+    /**
+     * Utility function to create a text run with specified formatting.
+     * @param paragraph the paragraph to add to.
+     * @param text the text string to add, can contain e.g. '\n' for newlines.
+     * @param fontSize font size.
+     * @param color font colour.
+     * @return the new text run which was added to the paragraph.
+     */
     private static XSLFTextRun addTextRun(final XSLFTextParagraph paragraph, final String text, final double fontSize, final Color color) {
         final XSLFTextRun summary = paragraph.addNewTextRun();
         summary.setFontColor(color);
@@ -789,6 +908,17 @@ public class PowerPointServiceImpl implements PowerPointService {
         return ppt;
     }
 
+    /**
+     * Internal implementation to add a date graph (aka line chart with time-series x-axis) to a slide, based on a template.
+     * @param template the parsed template information.
+     * @param slide the slide to add to.
+     * @param anchor optional bounding rectangle to draw onto, in PowerPoint coordinates.
+     *               If null, we'll use the bounds from the original template chart.
+     * @param data the date graph data.
+     * @param shapeId the slide shape ID, should be unique within the slide.
+     * @param relId the relation ID to the chart data.
+     * @throws TemplateLoadException if we can't create the date graph; most likely due to an invalid template.
+     */
     private static void addDategraph(final SlideShowTemplate template, final XSLFSlide slide, final Rectangle2D.Double anchor, final DategraphData data, final int shapeId, final String relId) throws TemplateLoadException {
         if (!data.validateInput()) {
             throw new IllegalArgumentException("Invalid data provided");
@@ -862,6 +992,13 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
     }
 
+    /**
+     * Utility function to update a chart line series.
+     * @param data the datagraph data.
+     * @param sheet the Excel sheet which contains corresponding data from the line series.
+     * @param seriesIdx the index of the data in the dategraph data.
+     * @param series the XML object representing the series in the chart.
+     */
     private static void updateCTLineSer(final DategraphData data, final XSSFSheet sheet, final int seriesIdx, final CTLineSer series) {
         final String sheetName = sheet.getSheetName();
 
@@ -944,6 +1081,13 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
     }
 
+    /**
+     * Utility function to write the date graph data as a Excel workbook; required since PowerPoint charts actually
+     *   embed an Excel file with corresponding data. If invalid, it'll open in OpenOffice fine, but PowerPoint will
+     *   complain that the presentation is corrupted.
+     * @param data the date graph data.
+     * @return a new Excel workbook with specified data on a new sheet.
+     */
     private static XSSFWorkbook writeChart(final DategraphData data) {
         final XSSFWorkbook wb = new XSSFWorkbook();
         final XSSFSheet sheet = wb.createSheet("Sheet1");
@@ -1085,6 +1229,13 @@ public class PowerPointServiceImpl implements PowerPointService {
         return ppt;
     }
 
+    /**
+     * Utility function to render a TextData object as multiple text runs on the screen in a single text paragraph.
+     * Note that newlines are not added automatically; this is so we can support adjacent text with different formatting.
+     * @param slide the slide to add to.
+     * @param anchor bounding rectangle to draw onto, in PowerPoint coordinates.
+     * @param data the text data to render.
+     */
     private void addTextData(final XSLFSlide slide, final Rectangle2D.Double anchor, final TextData data) {
         final XSLFTextBox textBox = slide.createTextBox();
         textBox.setAnchor(anchor);
@@ -1125,11 +1276,26 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
     }
 
+    /**
+     * Utility function to define a sort order which places date graph and sunburst to the front, since they have to
+     *   be added to the XML before any other shapes are drawn on the slide.
+     * @param child the child to test.
+     * @return -1 for date graphs/sunbursts, 0 otherwise.
+     */
     private static int prioritizeCharts(final ReportData.Child child) {
         final ComposableElement d = child.getData();
         return d instanceof DategraphData || d instanceof SunburstData ? -1 : 0;
     }
 
+    /**
+     * Utility function to generate a new unique package part name within a PowerPoint zip file, given a base name
+     *   which has a number before the file extension.
+     * @param opcPackage the PowerPoint zip package.
+     * @param baseName the original name.
+     * @return a new unique package part name with an incremented number if the old name had a number before the file extension,
+     *         or the old name otherwise.
+     * @throws InvalidFormatException if there was an exception while generating the new name.
+     */
     private static PackagePartName generateNewName(final OPCPackage opcPackage, final String baseName) throws InvalidFormatException {
         final Pattern pattern = Pattern.compile("(.*?)(\\d+)(\\.\\w+)?$");
 
@@ -1151,6 +1317,19 @@ public class PowerPointServiceImpl implements PowerPointService {
         return PackagingURIHelper.createPartName(baseName);
     }
 
+    /**
+     * Utility function to write a chart object to a slide based on a template.
+     * Creates new copies of referred objects in the chart, e.g. colors1.xml and style1.xml, and writes the Excel
+     *   workbook data to new files in the PowerPoint .zip structure.
+     * @param pptx the presentation to add to.
+     * @param slide the slide to add to.
+     * @param templateChart the original template chart XML reference object from the template.
+     * @param modifiedChart the new chart XML object.
+     * @param workbook the Excel workbook data corresponding to the chart XML data.
+     * @param relId the relation id for the new chart.
+     * @throws IOException if there's IO errors working with the chart.
+     * @throws InvalidFormatException if there's errors generating new package part names for the new copies of the data.
+     */
     private static void writeChart(final XMLSlideShow pptx, final XSLFSlide slide, final XSLFChart templateChart, final CTChartSpace modifiedChart, final XSSFWorkbook workbook, final String relId) throws IOException, InvalidFormatException {
         final OPCPackage opcPackage = pptx.getPackage();
         final PackagePartName chartName = generateNewName(opcPackage, templateChart.getPackagePart().getPartName().getURI().getPath());
