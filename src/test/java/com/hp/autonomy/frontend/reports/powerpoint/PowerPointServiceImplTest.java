@@ -352,6 +352,16 @@ public class PowerPointServiceImplTest {
         Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
+    @Test
+    public void testMixedWidgetReportByDeserialization() throws TemplateLoadException, IOException {
+        final ReportData report = new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("multiwidgetreport.json"), ReportData.class);
+
+        final XMLSlideShow pptx = pptxService.report(report);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
     private static ReportData createComplicatedReport(final double widgetMargins) throws IOException {
         final String titleFont = "Times New Roman";
         final double titleFontSize = 12;
