@@ -16,6 +16,7 @@ import com.hp.autonomy.frontend.reports.powerpoint.dto.TableData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.TextData;
 import com.hp.autonomy.frontend.reports.powerpoint.dto.TopicMapData;
 import java.awt.*;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayOutputStream;
@@ -642,19 +643,27 @@ public class PowerPointServiceImpl implements PowerPointService {
                 inner.setAnchor(new Rectangle2D.Double(centerX - innerHalfMark, centerY - innerHalfMark, innerMark, innerMark));
             }
             else {
-                final XSLFAutoShape shape = slide.createAutoShape();
+                final XSLFFreeformShape shape = slide.createFreeform();
                 shape.setHorizontalCentered(true);
                 shape.setWordWrap(false);
-                shape.setShapeType(ShapeType.TEARDROP);
+
                 shape.setVerticalAlignment(VerticalAlignment.BOTTOM);
-                shape.setRotation(135);
                 shape.setLineWidth(1.0);
                 shape.setLineColor(color.darker());
                 shape.setFillColor(transparentColor(color, 210));
-                double halfMark = 8;
-                double mark = halfMark * 2;
-                // align these so the pointy end at the bottom is the latlng position
-                shape.setAnchor(new Rectangle2D.Double(centerX - halfMark, centerY - mark, mark, mark));
+
+                final double
+                    halfMark = 8,
+                    mark = halfMark * 2,
+                    extension = 0.85,
+                    angle = Math.asin(0.5/ extension) * 180 / Math.PI;
+
+                // Draw a semicircle and a triangle to represent the marker, pointing at the precise x,y location
+                final Path2D.Double path = new Path2D.Double();
+                path.moveTo(centerX, centerY);
+                path.append(new Arc2D.Double(centerX - halfMark, centerY - (0.5 + extension) * mark, mark, mark, -angle, 180 + angle + angle, Arc2D.OPEN), true);
+                path.lineTo(centerX, centerY);
+                shape.setPath(path);
 
                 // We create a hyperlink which links back to this slide; so we get hover-over-detail-text on the marker
                 final CTHyperlink link = ((CTShape) shape.getXmlObject()).getNvSpPr().getCNvPr().addNewHlinkClick();
