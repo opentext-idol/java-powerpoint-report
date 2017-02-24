@@ -21,5 +21,7 @@ then
   cp ../../java-powerpoint-report-deploy-key.gpg .ssh/java-powerpoint-report-deploy-key.gpg
   echo ${GPG_KEY} > tmp.txt && gpg --batch --passphrase-fd 3 3<tmp.txt .ssh/java-powerpoint-report-deploy-key.gpg
   chmod go-rw -R .ssh
-  GIT_SSH_COMMAND="ssh -i ${PWD}/.ssh/java-powerpoint-report-deploy-key " git push --force origin master:gh-pages
+  echo 'ssh -i '${PWD}'/.ssh/java-powerpoint-report-deploy-key "$@"' > git-ssh-wrapper
+  chmod +x git-ssh-wrapper
+  GIT_SSH="${PWD}/git-ssh-wrapper" git push --force origin master:gh-pages
 fi
