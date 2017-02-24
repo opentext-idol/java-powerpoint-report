@@ -7,7 +7,7 @@ branches:
   - master
   - develop
 before_install:
-- echo $GPG_KEY > tmp.txt && gpg --batch --passphrase-fd 3 3<tmp.txt secret.gpg.gpg && gpg --batch --passphrase-fd 3 3<tmp.txt java-powerpoint-report-deploy-key.gpg
+- echo $GPG_KEY > tmp.txt && gpg --batch --passphrase-fd 3 3<tmp.txt secret.gpg.gpg
 script: mvn deploy --settings settings.xml -Prelease
 after_success: bash travis.sh
 env:
