@@ -236,7 +236,7 @@ public class PowerPointServiceImpl implements PowerPointService {
             double max = 100, min = 1, scale = 100;
             final CTTextNormalAutofit autoFit = cs.getTxBody().getBodyPr().getNormAutofit();
             final double availHeight = path.getBounds2D().getHeight();
-            final int RESIZE_ATTEMPTS = 10;
+            final int RESIZE_ATTEMPTS = 7;
 
             for (int attempts = 0; attempts < RESIZE_ATTEMPTS; ++attempts) {
                 // PowerPoint doesn't resize the text till you edit it once, which means the text initially looks too
