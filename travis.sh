@@ -15,9 +15,11 @@ then
   echo "Committing"
   git commit -m "Update GitHub Pages"
   echo "Pushing"
-  echo ${GPG_KEY} > tmp.txt && gpg --batch --passphrase-fd 3 3<tmp.txt ../../java-powerpoint-report-deploy-key.gpg
+  ls -ltr ../../
   mkdir .ssh
-  cp ../../java-powerpoint-report-deploy-key .ssh/java-powerpoint-report-deploy-key
+  echo "Extracting Keys"
+  cp ../../java-powerpoint-report-deploy-key.gpg .ssh/java-powerpoint-report-deploy-key.gpg
+  echo ${GPG_KEY} > tmp.txt && gpg --batch --passphrase-fd 3 3<tmp.txt .ssh/java-powerpoint-report-deploy-key.gpg
   chmod go-rw -R .ssh
-  GIT_SSH_COMMAND="ssh -i $PWD/.ssh/java-powerpoint-report-deploy-key " git push --force origin master:gh-pages
+  GIT_SSH_COMMAND="ssh -i ${PWD}/.ssh/java-powerpoint-report-deploy-key " git push --force origin master:gh-pages
 fi
