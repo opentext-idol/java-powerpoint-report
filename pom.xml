@@ -17,6 +17,12 @@
     <name>HPE Autonomy PowerPoint Report API</name>
     <description>Library to create PowerPoint presentations from Find visualizations.</description>
     <url>https://github.com/hpe-idol/java-powerpoint-report/</url>
+
+    <organization>
+        <name>Hewlett Packard Enterprise Development, L.P.</name>
+        <url>http://www.hpe.com/</url>
+    </organization>
+
     <inceptionYear>2017</inceptionYear>
 
     <scm>
