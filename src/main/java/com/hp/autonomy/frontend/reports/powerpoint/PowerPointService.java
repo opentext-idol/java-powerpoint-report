@@ -15,7 +15,8 @@ import com.hp.autonomy.frontend.reports.powerpoint.dto.TopicMapData;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 
 /**
- * Primary interface to the PowerPoint API. See README.md for usage instructions.
+ * Primary interface to the PowerPoint API.
+ * @see <a href="https://github.com/hpe-idol/java-powerpoint-report/">README.md</a> for examples and usage instructions.
  */
 public interface PowerPointService {
 
