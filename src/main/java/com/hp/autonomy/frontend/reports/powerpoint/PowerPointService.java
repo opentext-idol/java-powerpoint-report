@@ -16,7 +16,7 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 
 /**
  * Primary interface to the PowerPoint API.
- * @see <a href="https://github.com/hpe-idol/java-powerpoint-report/">README.md</a> for examples and usage instructions.
+ * @see <a href="https://github.com/hpe-idol/java-powerpoint-report/" target="_blank">README.md</a> for examples and usage instructions.
  */
 public interface PowerPointService {
 

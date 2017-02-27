@@ -101,7 +101,7 @@ import static org.apache.poi.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
 
 /**
  * Default implementation of PowerPointService.
- * @see <a href="https://github.com/hpe-idol/java-powerpoint-report/">README.md</a> for examples and usage instructions.
+ * @see <a href="https://github.com/hpe-idol/java-powerpoint-report/" target="_blank">README.md</a> for examples and usage instructions.
  */
 public class PowerPointServiceImpl implements PowerPointService {
 
