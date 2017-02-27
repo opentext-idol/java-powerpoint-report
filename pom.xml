@@ -28,7 +28,7 @@
     <scm>
         <connection>scm:git:git@github.com:hpe-idol/java-powerpoint-report.git</connection>
         <developerConnection>scm:git:git@github.com:hpe-idol/java-powerpoint-report.git</developerConnection>
-        <url>git@github.com:hpe-idol/java-powerpoint-report.git</url>
+        <url>https://github.com/hpe-idol/java-powerpoint-report/</url>
     </scm>
 
     <issueManagement>

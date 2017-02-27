@@ -6,9 +6,11 @@ Library to help generate PowerPoint reports; originally designed for the [Find U
 
 It renders various visualizations from Find into PowerPoint, e.g. a topic map, list, sunburst (only one level, as a doughnut chart), table, map and date graph as individual PowerPoint presentations. 
 
-It also has a `report` API to generate a composite report consisting of multiple visualizations rendered onto a single slide.
+It also has a report API to generate a composite report consisting of multiple visualizations rendered onto a single slide.
 
 This repo uses git-flow. develop is the development branch. master is the last known good branch.
+
+See https://hpe-idol.github.io/java-powerpoint-report/ for [project information](https://hpe-idol.github.io/java-powerpoint-report/project-info.html) and [Javadoc](https://hpe-idol.github.io/java-powerpoint-report/apidocs/index.html).
 
 ## Usage
 
