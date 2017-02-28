@@ -1130,9 +1130,7 @@ public class PowerPointServiceImpl implements PowerPointService {
     }
 
     @Override
-    public XMLSlideShow report(
-            final ReportData report
-    ) throws TemplateLoadException {
+    public XMLSlideShow report(final ReportData report, final boolean slidePerVisualizer) throws TemplateLoadException {
         final SlideShowTemplate template = loadTemplate();
         final XMLSlideShow ppt = template.getSlideShow();
 
@@ -1140,17 +1138,28 @@ public class PowerPointServiceImpl implements PowerPointService {
         double width = pageAnchor.getWidth();
         double height = pageAnchor.getHeight();
 
-        final XSLFSlide slide = ppt.createSlide();
+        if (!slidePerVisualizer) {
+            // If drawing multiple visualizations on a single slide, we need to render the charts first since adding
+            //   chart objects directly via XML after calling slide.getShapes() or createShape() etc. will break things.
+            Arrays.sort(report.getChildren(), Comparator.comparingInt(PowerPointServiceImpl::prioritizeCharts));
+        }
 
-        // We need to add charts first, since calling slide.getShapes() or indirectly createShape() etc.
-        //   before adding chart objects directly via XML will break things.
-        Arrays.sort(report.getChildren(), Comparator.comparingInt(PowerPointServiceImpl::prioritizeCharts));
+        // As above, we need to have a separate slide to place our sizing textbox for calculations.
+        XSLFSlide sizingSlide = ppt.createSlide();
+        // This is the slide to draw on.
+        XSLFSlide slide = ppt.createSlide();
 
-        // For the same reason, we need to have a separate slide to place our sizing textbox for calculations.
-        final XSLFSlide sizingSlide = ppt.createSlide();
         int shapeId = 1;
+        boolean first = true;
 
         for(final ReportData.Child child : report.getChildren()) {
+            if (slidePerVisualizer && !first) {
+                sizingSlide = ppt.createSlide();
+                slide = ppt.createSlide();
+            }
+
+            first = false;
+
             final ComposableElement data = child.getData();
             final Rectangle2D.Double anchor = new Rectangle2D.Double(
                     pageAnchor.getMinX() + width * child.getX(),
@@ -1222,8 +1231,20 @@ public class PowerPointServiceImpl implements PowerPointService {
             else if (data instanceof TextData) {
                 addTextData(slide, anchor, (TextData) data);
             }
+
+            if (slidePerVisualizer) {
+                transferSizedTextboxes(ppt, slide, sizingSlide);
+            }
         }
 
+        if (!slidePerVisualizer) {
+            transferSizedTextboxes(ppt, slide, sizingSlide);
+        }
+
+        return ppt;
+    }
+
+    private static void transferSizedTextboxes(final XMLSlideShow ppt, final XSLFSlide slide, final XSLFSlide sizingSlide) {
         // Clone all text boxes to the original slide afterward, and remove the sizing slide
         for(XSLFShape shape : sizingSlide.getShapes()) {
             if (shape instanceof XSLFTextBox) {
@@ -1234,9 +1255,8 @@ public class PowerPointServiceImpl implements PowerPointService {
                 src.forEach(srcPara -> textBox.addNewTextParagraph().getXmlObject().set(srcPara.getXmlObject().copy()));
             }
         }
-        ppt.removeSlide(1);
 
-        return ppt;
+        ppt.removeSlide(ppt.getSlides().indexOf(sizingSlide));
     }
 
     /**

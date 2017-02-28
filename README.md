@@ -99,7 +99,7 @@ Similarly, you can compose multiple visualizations into a single slide:
         new ReportData.Child(0.5, 0.5, 0.5, 0.5, "Bottom Right Sunburst", widgetMargins, titleMargin, titleFontSize, titleFont, bottomRightSunburst),
     });
 
-    final XMLSlideShow pptx = pptxService.report(report);
+    final XMLSlideShow pptx = pptxService.report(report, false);
     pptx.write(new FileOutputStream("report.pptx"));
 ```
 

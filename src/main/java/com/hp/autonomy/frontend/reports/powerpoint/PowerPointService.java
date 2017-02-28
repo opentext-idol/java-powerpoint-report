@@ -85,9 +85,10 @@ public interface PowerPointService {
     /**
      * Render a composite report consisting of multiple visualizations as a PowerPoint presentation.
      * @param report the data containing a list of visualizations to render.
+     * @param slidePerVisualizer if true, we'll put each visualization on a separate slide.
      * @return a PowerPoint presentation with a single slide.
      * @throws TemplateLoadException if the template is invalid.
      */
-    XMLSlideShow report(ReportData report) throws TemplateLoadException;
+    XMLSlideShow report(ReportData report, final boolean slidePerVisualizer) throws TemplateLoadException;
 
 }

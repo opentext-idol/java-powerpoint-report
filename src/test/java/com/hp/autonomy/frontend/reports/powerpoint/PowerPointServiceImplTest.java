@@ -285,17 +285,41 @@ public class PowerPointServiceImplTest {
                 new ReportData.Child(0.5, 0.5, 0.5, 0.5, "Bottom Right Sunburst", widgetMargins, titleMargin, titleFontSize, titleFont, bottomRightSunburst),
         });
 
-        final XMLSlideShow pptx = pptxService.report(report);
+        final XMLSlideShow pptx = pptxService.report(report, false);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
     @Test
+    public void testLinearReport() throws TemplateLoadException, IOException {
+        final DategraphData dategraph = createTwoAxisDategraphData();
+
+        final SunburstData sunburst = createSunburstData();
+
+        final SunburstData bottomRightSunburst = createAlternativeSunburstData();
+
+        final String titleFont = "Times New Roman";
+        final double titleFontSize = 12;
+        final double titleMargin = 5;
+        final double widgetMargins = 3;
+        final ReportData report = new ReportData(new ReportData.Child[] {
+                new ReportData.Child(0, 0, 1, 1, "Slide#1 Dategraph", widgetMargins, titleMargin, titleFontSize, titleFont, dategraph),
+                new ReportData.Child(0, 0, 1, 1, "Slide#2 Sunburst", widgetMargins, titleMargin, titleFontSize, titleFont, sunburst),
+                new ReportData.Child(0, 0, 1, 1, "Slide#3 Sunburst", widgetMargins, titleMargin, titleFontSize, titleFont, bottomRightSunburst),
+        });
+
+        final XMLSlideShow pptx = pptxService.report(report, true);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 3);
+    }
+
+    @Test
     public void testComplicatedReport() throws TemplateLoadException, IOException {
         final ReportData report = createComplicatedReport(3);
 
-        final XMLSlideShow pptx = pptxService.report(report);
+        final XMLSlideShow pptx = pptxService.report(report, false);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
@@ -305,7 +329,7 @@ public class PowerPointServiceImplTest {
     public void testComplicatedReportWithoutWidgetMargins() throws TemplateLoadException, IOException {
         final ReportData report = createComplicatedReport(0);
 
-        final XMLSlideShow pptx = pptxService.report(report);
+        final XMLSlideShow pptx = pptxService.report(report, false);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
@@ -319,7 +343,7 @@ public class PowerPointServiceImplTest {
             child.setTitle(null);
         }
 
-        final XMLSlideShow pptx = pptxService.report(report);
+        final XMLSlideShow pptx = pptxService.report(report, false);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
@@ -346,7 +370,7 @@ public class PowerPointServiceImplTest {
     public void testReportByDeserialization() throws TemplateLoadException, IOException {
         final ReportData report = new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("report.json"), ReportData.class);
 
-        final XMLSlideShow pptx = pptxService.report(report);
+        final XMLSlideShow pptx = pptxService.report(report, false);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
@@ -356,7 +380,7 @@ public class PowerPointServiceImplTest {
     public void testMixedWidgetReportByDeserialization() throws TemplateLoadException, IOException {
         final ReportData report = new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("multiwidgetreport.json"), ReportData.class);
 
-        final XMLSlideShow pptx = pptxService.report(report);
+        final XMLSlideShow pptx = pptxService.report(report, false);
         testWrite(pptx);
 
         Assert.assertEquals(pptx.getSlides().size(), 1);
