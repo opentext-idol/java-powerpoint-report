@@ -14,14 +14,12 @@ then
   git add .
   echo "Committing"
   git commit -m "Update GitHub Pages"
-  echo "Pushing"
-  ls -ltr ../../
-  mkdir .ssh
   echo "Extracting Keys"
-  cp ../../java-powerpoint-report-deploy-key.gpg .ssh/java-powerpoint-report-deploy-key.gpg
-  echo ${GPG_KEY} > tmp.txt && gpg --batch --passphrase-fd 3 3<tmp.txt .ssh/java-powerpoint-report-deploy-key.gpg
+  mkdir -p .ssh
+  echo ${GPG_KEY} > tmp.txt && gpg --batch --passphrase-fd 3 3<tmp.txt --output .ssh/java-powerpoint-report-deploy-key --decrypt ../../java-powerpoint-report-deploy-key.gpg
   chmod go-rw -R .ssh
   echo 'ssh -i '${PWD}'/.ssh/java-powerpoint-report-deploy-key "$@"' > git-ssh-wrapper
   chmod +x git-ssh-wrapper
+  echo "Pushing"
   GIT_SSH="${PWD}/git-ssh-wrapper" git push --force origin master:gh-pages
 fi
