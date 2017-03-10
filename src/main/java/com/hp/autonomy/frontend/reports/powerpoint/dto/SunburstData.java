@@ -22,6 +22,12 @@ public class SunburstData implements ComposableElement {
     /** List of values for each category, should be the same length as the category array. */
     private double[] values;
 
+    /** List of fill colors for each category, e.g. '#FF0000'; will default to the template if null. */
+    private String[] colors;
+
+    /** List of stroke colors for each category, e.g. '#FF0000'; will default to the template if null. */
+    private String[] strokeColors;
+
     /** Optional title to put on the chart. */
     private String title;
 

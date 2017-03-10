@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.POIXMLException;
@@ -72,9 +73,11 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTChartSpace;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTDPt;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTDoughnutChart;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTLineChart;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTLineSer;
@@ -90,7 +93,9 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTGradientFillProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTGradientStop;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTGradientStopList;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTHyperlink;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTLineProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTSRgbColor;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTShapeProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTSolidColorFillProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextNormalAutofit;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTShape;
@@ -286,7 +291,7 @@ public class PowerPointServiceImpl implements PowerPointService {
             final SunburstData sunburst
     ) throws TemplateLoadException {
         if(!sunburst.validateInput()) {
-            throw new IllegalArgumentException("Number of values should match the number of categories");
+            throw new IllegalArgumentException("Number of values should match the number of categories, and color / stroke color must either be null or nonempty");
         }
 
         final SlideShowTemplate template = loadTemplate();
@@ -349,6 +354,57 @@ public class PowerPointServiceImpl implements PowerPointService {
         final CTNumRef numRef = series.getVal().getNumRef();
         final CTNumData numericData = numRef.getNumCache();
 
+        final String[] fillColors = data.getColors();
+        final String[] strokeColors = data.getStrokeColors();
+        final boolean overrideFill = ArrayUtils.isNotEmpty(fillColors);
+        final boolean overrideStroke = ArrayUtils.isNotEmpty(strokeColors);
+        final boolean overrideColors = overrideFill || overrideStroke;
+        final List<CTDPt> dPtList = series.getDPtList();
+        final CTDPt templatePt = (CTDPt) dPtList.get(0).copy();
+        if (overrideColors) {
+            dPtList.clear();
+
+            final CTShapeProperties spPr = templatePt.getSpPr();
+            final CTLineProperties ln = spPr.getLn();
+
+            // We need to unset any styles on the existing template
+            if (overrideFill) {
+                if (spPr.isSetBlipFill()) {
+                    spPr.unsetBlipFill();
+                }
+                if (spPr.isSetGradFill()) {
+                    spPr.unsetGradFill();
+                }
+                if (spPr.isSetGrpFill()) {
+                    spPr.unsetGrpFill();
+                }
+                if (spPr.isSetNoFill()) {
+                    spPr.unsetNoFill();
+                }
+                if (spPr.isSetSolidFill()) {
+                    spPr.unsetSolidFill();
+                }
+                if (spPr.isSetPattFill()) {
+                    spPr.unsetPattFill();
+                }
+            }
+
+            if (overrideStroke) {
+                if (ln.isSetSolidFill()) {
+                    ln.unsetSolidFill();
+                }
+                if (ln.isSetPattFill()) {
+                    ln.unsetPattFill();
+                }
+                if (ln.isSetGradFill()) {
+                    ln.unsetGradFill();
+                }
+                if (ln.isSetNoFill()) {
+                    ln.unsetNoFill();
+                }
+            }
+        }
+
         categoryData.setPtArray(null);
         numericData.setPtArray(null);
 
@@ -360,6 +416,25 @@ public class PowerPointServiceImpl implements PowerPointService {
             final CTNumVal numericPoint = numericData.addNewPt();
             numericPoint.setIdx(idx);
             numericPoint.setV(Double.toString(values[idx]));
+
+            if (overrideColors) {
+                final CTDPt copiedPt = (CTDPt) templatePt.copy();
+                copiedPt.getIdx().setVal(idx);
+
+                if (overrideFill) {
+                    final Color color = Color.decode(fillColors[idx % fillColors.length]);
+                    final CTSolidColorFillProperties fillClr = copiedPt.getSpPr().addNewSolidFill();
+                    fillClr.addNewSrgbClr().setVal(new byte[]{ (byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue()});
+                }
+
+                if (overrideStroke) {
+                    final Color strokeColor = Color.decode(strokeColors[idx % strokeColors.length]);
+                    final CTSolidColorFillProperties strokeClr = copiedPt.getSpPr().getLn().addNewSolidFill();
+                    strokeClr.addNewSrgbClr().setVal(new byte[]{ (byte) strokeColor.getRed(), (byte) strokeColor.getGreen(), (byte) strokeColor.getBlue()});
+                }
+
+                dPtList.add(copiedPt);
+            }
 
             XSSFRow row = sheet.createRow(idx + 1);
             row.createCell(0).setCellValue(categories[idx]);
