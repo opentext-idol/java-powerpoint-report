@@ -209,6 +209,17 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
+    public void testListPaginationNoIcons() throws TemplateLoadException, IOException {
+        final ListData listData = createListData();
+        listData.setDrawIcons(false);
+
+        final XMLSlideShow pptx = pptxService.list(listData, "Showing 1 to 10 of 10 results", "Sort by Relevance");
+        testWrite(pptx);
+
+        Assert.assertTrue(pptx.getSlides().size() > 1);
+    }
+
+    @Test
     public void testListWithoutHeaders() throws TemplateLoadException, IOException {
         final ListData listData = createListData();
 

@@ -73,7 +73,6 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTChartSpace;
@@ -770,7 +769,7 @@ public class PowerPointServiceImpl implements PowerPointService {
 
         final XMLSlideShow ppt = loadTemplate().getSlideShow();
 
-        addList(ppt, null, createPageAnchor(ppt), true, docs, results, sortBy);
+        addList(ppt, null, createPageAnchor(ppt), true, docs, results, sortBy, documentList.isDrawIcons());
 
         return ppt;
     }
@@ -786,8 +785,9 @@ public class PowerPointServiceImpl implements PowerPointService {
      *                  Will appear on each page if pagination is enabled.
      * @param sortBy optional string to render into the top-right corner of the available space.
      *                  Will appear on each page if pagination is enabled.
+     * @param drawIcons whether we draw the icons on the documents.
      */
-    private static void addList(final XMLSlideShow ppt, XSLFSlide sl, final Rectangle2D.Double anchor, final boolean paginate, final Document[] docs, final String results, final String sortBy) {
+    private static void addList(final XMLSlideShow ppt, XSLFSlide sl, final Rectangle2D.Double anchor, final boolean paginate, final Document[] docs, final String results, final String sortBy, final boolean drawIcons) {
         final double
                 // How much space to leave at the left and right edge of the slide
                 xMargin = 20,
@@ -849,29 +849,32 @@ public class PowerPointServiceImpl implements PowerPointService {
                 }
             }
 
-            final XSLFAutoShape icon = sl.createAutoShape();
-            icon.setShapeType(ShapeType.SNIP_1_RECT);
-            icon.setAnchor(new Rectangle2D.Double(xCursor, yCursor + listItemMargin, iconWidth, iconHeight));
-            icon.setLineColor(Color.decode("#888888"));
-            icon.setLineWidth(2.0);
+            XSLFAutoShape icon = null;
+            if (drawIcons) {
+                icon = sl.createAutoShape();
+                icon.setShapeType(ShapeType.SNIP_1_RECT);
+                icon.setAnchor(new Rectangle2D.Double(xCursor, yCursor + listItemMargin, iconWidth, iconHeight));
+                icon.setLineColor(Color.decode("#888888"));
+                icon.setLineWidth(2.0);
 
-            xCursor += iconWidth;
+                xCursor += iconWidth;
+            }
 
             final XSLFTextBox listEl = sl.createTextBox();
             listEl.clearText();
             listEl.setAnchor(new Rectangle2D.Double(xCursor, yCursor, Math.max(0, anchor.getMaxX() - xCursor - xMargin), Math.max(0, anchor.getMaxY() - yCursor)));
 
             final XSLFTextParagraph titlePara = listEl.addNewTextParagraph();
-            addTextRun(titlePara, doc.getTitle(), 14.0, Color.BLACK).setBold(true);
+            addTextRun(titlePara, doc.getTitle(), 11.0, Color.BLACK).setBold(true);
 
             if (StringUtils.isNotBlank(doc.getDate())) {
                 final XSLFTextParagraph datePara = listEl.addNewTextParagraph();
                 datePara.setLeftMargin(5.);
-                addTextRun(datePara, doc.getDate(), 10., Color.GRAY).setItalic(true);
+                addTextRun(datePara, doc.getDate(), 9., Color.GRAY).setItalic(true);
             }
 
             if (StringUtils.isNotBlank(doc.getRef())) {
-                addTextRun(listEl.addNewTextParagraph(), doc.getRef(), 12., Color.GRAY);
+                addTextRun(listEl.addNewTextParagraph(), doc.getRef(), 11., Color.GRAY);
             }
 
             final double thumbnailOffset = listEl.getTextHeight();
@@ -913,15 +916,15 @@ public class PowerPointServiceImpl implements PowerPointService {
                     final int start = matcher.start();
 
                     if (idx < start) {
-                        addTextRun(contentPara, summary.substring(idx, start), 12., Color.DARK_GRAY);
+                        addTextRun(contentPara, summary.substring(idx, start), 10., Color.DARK_GRAY);
                     }
 
-                    addTextRun(contentPara, matcher.group(1), 12., Color.DARK_GRAY).setBold(true);
+                    addTextRun(contentPara, matcher.group(1), 10., Color.DARK_GRAY).setBold(true);
                     idx = matcher.end();
                 }
 
                 if (idx < summary.length()) {
-                    addTextRun(contentPara, summary.substring(idx), 12., Color.DARK_GRAY);
+                    addTextRun(contentPara, summary.substring(idx), 10., Color.DARK_GRAY);
                 }
             }
 
@@ -940,7 +943,9 @@ public class PowerPointServiceImpl implements PowerPointService {
                     // If we drew more than one list element on this page; and we exceeded the available space,
                     //   delete the last element's shapes and redraw it on the next page.
                     sl.removeShape(listEl);
-                    sl.removeShape(icon);
+                    if (icon != null) {
+                        sl.removeShape(icon);
+                    }
 
                     if (picture != null) {
                         // Technically we want to remove the shape, but that also removes the related image data,
@@ -1286,7 +1291,7 @@ public class PowerPointServiceImpl implements PowerPointService {
             }
             else if (data instanceof ListData) {
                 final ListData listData = (ListData) data;
-                addList(ppt, slide, anchor, false, listData.getDocs(), null, null);
+                addList(ppt, slide, anchor, false, listData.getDocs(), null, null, listData.isDrawIcons());
             }
             else if (data instanceof MapData) {
                 final MapData mapData = (MapData) data;

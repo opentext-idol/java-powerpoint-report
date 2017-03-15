@@ -19,6 +19,13 @@ public class ListData implements ComposableElement {
 
     private Document[] docs;
 
+    /** Whether we should draw the document icon. */
+    private boolean drawIcons;
+
+    public ListData(final Document[] docs) {
+        this(docs, true);
+    }
+
     /**
      * DTO for a single document.
      */
