@@ -401,8 +401,7 @@ public class PowerPointServiceImplTest {
         final ObjectMapper objectMapper = new ObjectMapper();
         final ReportData.Child child = objectMapper.readValue("{}", ReportData.Child.class);
 
-        final String font = child.getFontFamily();
-        Assert.assertNotNull(font);
+        Assert.assertNotEquals(0, child.getFontSize(), Double.MIN_VALUE);
 
         final Anchor anchor = objectMapper.readValue("{}", Anchor.class);
         Assert.assertEquals(1, anchor.getWidth(), Double.MIN_VALUE);

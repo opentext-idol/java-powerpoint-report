@@ -43,7 +43,7 @@ public class ReportData {
         private double fontSize = 12;
 
         /** Font family for the optional title.  */
-        private String fontFamily = "Metric-Light";
+        private String fontFamily = null;
 
         public Child(final double x, final double y, final double width, final double height, final String title, final double margin, final double textMargin, final double fontSize, final String fontFamily, final ComposableElement data) {
             super(x, y, width, height);
