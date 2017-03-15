@@ -21,9 +21,16 @@ public class ListData implements ComposableElement {
     /** Whether we should draw the document icon. */
     private boolean drawIcons;
 
+    /** Font size for document titles. */
     private double titleFontSize = 10;
+
+    /** Font size for document date. */
     private double dateFontSize = 8;
+
+    /** Font size for document reference. */
     private double refFontSize = titleFontSize;
+
+    /** Font size for document summary text. */
     private double summaryFontSize = 9;
 
     public ListData(final Document[] docs) {
