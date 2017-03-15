@@ -409,6 +409,15 @@ public class PowerPointServiceImplTest {
 
         final TextData.Paragraph paragraph = objectMapper.readValue("{}", TextData.Paragraph.class);
         Assert.assertNotEquals(0, paragraph.getFontSize(), Double.MIN_VALUE);
+
+        final ListData listData = objectMapper.readValue("{}", ListData.class);
+        Assert.assertNotEquals(0, listData.getDateFontSize(), Double.MIN_VALUE);
+        Assert.assertNotEquals(0, listData.getRefFontSize(), Double.MIN_VALUE);
+        Assert.assertNotEquals(0, listData.getSummaryFontSize(), Double.MIN_VALUE);
+        Assert.assertNotEquals(0, listData.getTitleFontSize(), Double.MIN_VALUE);
+
+        final ListData overriddenListData = objectMapper.readValue("{ \"titleFontSize\": 40 }", ListData.class);
+        Assert.assertEquals(40, overriddenListData.getTitleFontSize(), Double.MIN_VALUE);
     }
 
     @Test

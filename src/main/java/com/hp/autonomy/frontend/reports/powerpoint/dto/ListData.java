@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class ListData implements ComposableElement {
 
     private Document[] docs;
@@ -22,8 +21,23 @@ public class ListData implements ComposableElement {
     /** Whether we should draw the document icon. */
     private boolean drawIcons;
 
+    private double titleFontSize = 10;
+    private double dateFontSize = 8;
+    private double refFontSize = titleFontSize;
+    private double summaryFontSize = 9;
+
     public ListData(final Document[] docs) {
-        this(docs, true);
+        this();
+        this.setDocs(docs);
+    }
+
+    public ListData(final Document[] docs, final boolean drawIcons, final double titleFontSize, final double dateFontSize, final double refFontSize, final double summaryFontSize) {
+        this.docs = docs;
+        this.drawIcons = drawIcons;
+        this.titleFontSize = titleFontSize;
+        this.dateFontSize = dateFontSize;
+        this.refFontSize = refFontSize;
+        this.summaryFontSize = summaryFontSize;
     }
 
     /**

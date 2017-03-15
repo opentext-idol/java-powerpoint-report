@@ -765,11 +765,9 @@ public class PowerPointServiceImpl implements PowerPointService {
 
     @Override
     public XMLSlideShow list(final ListData documentList, final String results, final String sortBy) throws TemplateLoadException {
-        final Document[] docs = documentList.getDocs();
-
         final XMLSlideShow ppt = loadTemplate().getSlideShow();
 
-        addList(ppt, null, createPageAnchor(ppt), true, docs, results, sortBy, documentList.isDrawIcons());
+        addList(ppt, null, createPageAnchor(ppt), true, documentList, results, sortBy);
 
         return ppt;
     }
@@ -780,14 +778,13 @@ public class PowerPointServiceImpl implements PowerPointService {
      * @param sl the slide to add to (can be null if pagination is enabled).
      * @param anchor bounding rectangle to draw onto, in PowerPoint coordinates.
      * @param paginate whether to render results as multiple slides if they don't fit on one slide.
-     * @param docs the documents to render.
+     * @param data the documents to render.
      * @param results optional string to render into the top-left corner of the available space.
-     *                  Will appear on each page if pagination is enabled.
+*                  Will appear on each page if pagination is enabled.
      * @param sortBy optional string to render into the top-right corner of the available space.
-     *                  Will appear on each page if pagination is enabled.
-     * @param drawIcons whether we draw the icons on the documents.
+*                  Will appear on each page if pagination is enabled.
      */
-    private static void addList(final XMLSlideShow ppt, XSLFSlide sl, final Rectangle2D.Double anchor, final boolean paginate, final Document[] docs, final String results, final String sortBy, final boolean drawIcons) {
+    private static void addList(final XMLSlideShow ppt, XSLFSlide sl, final Rectangle2D.Double anchor, final boolean paginate, final ListData data, final String results, final String sortBy) {
         final double
                 // How much space to leave at the left and right edge of the slide
                 xMargin = 20,
@@ -809,6 +806,7 @@ public class PowerPointServiceImpl implements PowerPointService {
 
         int docsOnPage = 0;
 
+        final Document[] docs = data.getDocs();
         for(int docIdx = 0; docIdx < docs.length; ++docIdx) {
             final Document doc = docs[docIdx];
 
@@ -850,7 +848,7 @@ public class PowerPointServiceImpl implements PowerPointService {
             }
 
             XSLFAutoShape icon = null;
-            if (drawIcons) {
+            if (data.isDrawIcons()) {
                 icon = sl.createAutoShape();
                 icon.setShapeType(ShapeType.SNIP_1_RECT);
                 icon.setAnchor(new Rectangle2D.Double(xCursor, yCursor + listItemMargin, iconWidth, iconHeight));
@@ -865,16 +863,16 @@ public class PowerPointServiceImpl implements PowerPointService {
             listEl.setAnchor(new Rectangle2D.Double(xCursor, yCursor, Math.max(0, anchor.getMaxX() - xCursor - xMargin), Math.max(0, anchor.getMaxY() - yCursor)));
 
             final XSLFTextParagraph titlePara = listEl.addNewTextParagraph();
-            addTextRun(titlePara, doc.getTitle(), 11.0, Color.BLACK).setBold(true);
+            addTextRun(titlePara, doc.getTitle(), data.getTitleFontSize(), Color.BLACK).setBold(true);
 
             if (StringUtils.isNotBlank(doc.getDate())) {
                 final XSLFTextParagraph datePara = listEl.addNewTextParagraph();
                 datePara.setLeftMargin(5.);
-                addTextRun(datePara, doc.getDate(), 9., Color.GRAY).setItalic(true);
+                addTextRun(datePara, doc.getDate(), data.getDateFontSize(), Color.GRAY).setItalic(true);
             }
 
             if (StringUtils.isNotBlank(doc.getRef())) {
-                addTextRun(listEl.addNewTextParagraph(), doc.getRef(), 11., Color.GRAY);
+                addTextRun(listEl.addNewTextParagraph(), doc.getRef(), data.getRefFontSize(), Color.GRAY);
             }
 
             final double thumbnailOffset = listEl.getTextHeight();
@@ -916,15 +914,15 @@ public class PowerPointServiceImpl implements PowerPointService {
                     final int start = matcher.start();
 
                     if (idx < start) {
-                        addTextRun(contentPara, summary.substring(idx, start), 10., Color.DARK_GRAY);
+                        addTextRun(contentPara, summary.substring(idx, start), data.getSummaryFontSize(), Color.DARK_GRAY);
                     }
 
-                    addTextRun(contentPara, matcher.group(1), 10., Color.DARK_GRAY).setBold(true);
+                    addTextRun(contentPara, matcher.group(1), data.getSummaryFontSize(), Color.DARK_GRAY).setBold(true);
                     idx = matcher.end();
                 }
 
                 if (idx < summary.length()) {
-                    addTextRun(contentPara, summary.substring(idx), 10., Color.DARK_GRAY);
+                    addTextRun(contentPara, summary.substring(idx), data.getSummaryFontSize(), Color.DARK_GRAY);
                 }
             }
 
@@ -1291,7 +1289,7 @@ public class PowerPointServiceImpl implements PowerPointService {
             }
             else if (data instanceof ListData) {
                 final ListData listData = (ListData) data;
-                addList(ppt, slide, anchor, false, listData.getDocs(), null, null, listData.isDrawIcons());
+                addList(ppt, slide, anchor, false, listData, null, null);
             }
             else if (data instanceof MapData) {
                 final MapData mapData = (MapData) data;
