@@ -42,6 +42,9 @@ public class TopicMapData implements ComposableElement {
 
         /** The points in the polygon, each of which should be a [x, y] array. */
         public ArrayList<double[]> points;
+
+        /** How far from the leaf nodes, 0 for leaf nodes. */
+        public int level;
     }
 }
 

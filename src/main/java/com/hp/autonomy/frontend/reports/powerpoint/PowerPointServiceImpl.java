@@ -97,7 +97,28 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTSRgbColor;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTShapeProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTSolidColorFillProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextNormalAutofit;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTBuildList;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTShape;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTSlide;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTSlideTiming;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTTLAnimateEffectBehavior;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTTLBuildParagraph;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTTLCommonBehaviorData;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTTLCommonTimeNodeData;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTTLSetBehavior;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTTLTimeCondition;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTTLTimeConditionList;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTTLTimeNodeSequence;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTTimeNodeList;
+import org.openxmlformats.schemas.presentationml.x2006.main.STTLAnimateEffectTransition;
+import org.openxmlformats.schemas.presentationml.x2006.main.STTLNextActionType;
+import org.openxmlformats.schemas.presentationml.x2006.main.STTLTimeNodeFillType;
+import org.openxmlformats.schemas.presentationml.x2006.main.STTLTimeNodePresetClassType;
+import org.openxmlformats.schemas.presentationml.x2006.main.STTLTimeNodeRestartType;
+import org.openxmlformats.schemas.presentationml.x2006.main.STTLTimeNodeType;
+import org.openxmlformats.schemas.presentationml.x2006.main.STTLTriggerEvent;
+import org.openxmlformats.schemas.presentationml.x2006.main.STTLTriggerRuntimeNode;
+import org.openxmlformats.schemas.presentationml.x2006.main.impl.STTLTimeNodeRestartTypeImpl;
 
 import static com.hp.autonomy.frontend.reports.powerpoint.dto.ListData.Document;
 import static com.hp.autonomy.frontend.reports.powerpoint.dto.MapData.Marker;
@@ -282,6 +303,101 @@ public class PowerPointServiceImpl implements PowerPointService {
             final CTSRgbColor color2 = stop2.addNewSrgbClr();
             color2.setVal(new byte[]{(byte) c2.getRed(), (byte) c2.getGreen(), (byte) c2.getBlue()});
             color2.addNewAlpha().setVal(opacity);
+
+            if (reqPath.level > 0) {
+                // The nodes which aren't leaf nodes can be clicked on to hide them so you can see the nodes underneath.
+                // This only works in PowerPoint; OpenOffice doesn't seem to support it. OpenOffice has its own syntax
+                //   to do something similar, but we don't use it since PowerPoint treats it as corrupt.
+                final String shapeId = Integer.toString(shape.getShapeId());
+                final CTSlide slXML = slide.getXmlObject();
+
+                final CTTimeNodeList childTnLst;
+                final CTBuildList bldLst;
+                if (!slXML.isSetTiming()) {
+                    final CTSlideTiming timing = slXML.addNewTiming();
+                    final CTTLCommonTimeNodeData ctn = timing.addNewTnLst().addNewPar().addNewCTn();
+                    ctn.setDur("indefinite");
+                    ctn.setRestart(STTLTimeNodeRestartTypeImpl.NEVER);
+                    ctn.setNodeType(STTLTimeNodeType.TM_ROOT);
+                    childTnLst = ctn.addNewChildTnLst();
+                    bldLst = timing.addNewBldLst();
+                }
+                else {
+                    final CTSlideTiming timing = slXML.getTiming();
+                    childTnLst = timing.getTnLst().getParArray(0).getCTn().getChildTnLst();
+                    bldLst = timing.getBldLst();
+                }
+
+                final CTTLTimeNodeSequence seq = childTnLst.addNewSeq();
+                seq.setConcurrent(true);
+                seq.setNextAc(STTLNextActionType.SEEK);
+                final CTTLCommonTimeNodeData common = seq.addNewCTn();
+
+                common.setRestart(STTLTimeNodeRestartType.WHEN_NOT_ACTIVE);
+                common.setFill(STTLTimeNodeFillType.HOLD);
+                common.setEvtFilter("cancelBubble");
+                common.setNodeType(STTLTimeNodeType.INTERACTIVE_SEQ);
+
+                final CTTLTimeConditionList condList = common.addNewStCondLst();
+                final CTTLTimeCondition cond = condList.addNewCond();
+                cond.setEvt(STTLTriggerEvent.ON_CLICK);
+                cond.setDelay(0);
+                cond.addNewTgtEl().addNewSpTgt().setSpid(shapeId);
+
+                final CTTLTimeCondition endSync = common.addNewEndSync();
+                endSync.setEvt(STTLTriggerEvent.END);
+                endSync.setDelay(0);
+                endSync.addNewRtn().setVal(STTLTriggerRuntimeNode.ALL);
+
+                final CTTLCommonTimeNodeData holdCtn1 = common.addNewChildTnLst().addNewPar().addNewCTn();
+
+                holdCtn1.setFill(STTLTimeNodeFillType.HOLD);
+                holdCtn1.addNewStCondLst().addNewCond().setDelay(0);
+
+                final CTTLCommonTimeNodeData holdCtn2 = holdCtn1.addNewChildTnLst().addNewPar().addNewCTn();
+
+                holdCtn2.setFill(STTLTimeNodeFillType.HOLD);
+                holdCtn2.addNewStCondLst().addNewCond().setDelay(0);
+
+                final CTTLCommonTimeNodeData clickCtn = holdCtn2.addNewChildTnLst().addNewPar().addNewCTn();
+
+                clickCtn.setPresetID(10);
+                clickCtn.setPresetClass(STTLTimeNodePresetClassType.EXIT);
+                clickCtn.setPresetSubtype(0);
+                clickCtn.setFill(STTLTimeNodeFillType.HOLD);
+                clickCtn.setGrpId(0);
+                clickCtn.setNodeType(STTLTimeNodeType.CLICK_EFFECT);
+
+                clickCtn.addNewStCondLst().addNewCond().setDelay(0);
+
+                final CTTimeNodeList clickChildTnList = clickCtn.addNewChildTnLst();
+
+                final CTTLAnimateEffectBehavior animEffect = clickChildTnList.addNewAnimEffect();
+                animEffect.setTransition(STTLAnimateEffectTransition.OUT);
+                animEffect.setFilter("fade");
+                final CTTLCommonBehaviorData cBhvr = animEffect.addNewCBhvr();
+                final CTTLCommonTimeNodeData bhvrCtn = cBhvr.addNewCTn();
+
+                bhvrCtn.setDur(500);
+                cBhvr.addNewTgtEl().addNewSpTgt().setSpid(shapeId);
+
+                final CTTLSetBehavior clickSet = clickChildTnList.addNewSet();
+                final CTTLCommonBehaviorData clickSetBhvr = clickSet.addNewCBhvr();
+                final CTTLCommonTimeNodeData hideCtn = clickSetBhvr.addNewCTn();
+
+                hideCtn.setDur(1);
+                hideCtn.setFill(STTLTimeNodeFillType.HOLD);
+                hideCtn.addNewStCondLst().addNewCond().setDelay(499);
+
+                clickSetBhvr.addNewTgtEl().addNewSpTgt().setSpid(shapeId);
+                clickSetBhvr.addNewAttrNameLst().addAttrName("style.visibility");
+                clickSet.addNewTo().addNewStrVal().setVal("hidden");
+
+                final CTTLBuildParagraph bldP = bldLst.addNewBldP();
+                bldP.setSpid(shapeId);
+                bldP.setGrpId(0);
+                bldP.setAnimBg(true);
+            }
         }
     }
 
