@@ -349,6 +349,9 @@ public class PowerPointServiceImpl implements PowerPointService {
                 endSync.setDelay(0);
                 endSync.addNewRtn().setVal(STTLTriggerRuntimeNode.ALL);
 
+                // These holdCtn* 'hold' transitions with zero delay might seem redundant; but they're exported in the
+                //   PowerPoint XML, and the online PowerPoint Office365 viewer won't support the click animations
+                //   unless they're present (e.g. from the 'Start Slide Show' button in the browser).
                 final CTTLCommonTimeNodeData holdCtn1 = common.addNewChildTnLst().addNewPar().addNewCTn();
 
                 holdCtn1.setFill(STTLTimeNodeFillType.HOLD);
