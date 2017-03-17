@@ -430,6 +430,17 @@ public class PowerPointServiceImplTest {
     }
 
     @Test
+    public void testMutipleTopicMapReportByDeserialization() throws TemplateLoadException, IOException {
+        // This test checks that multiple topicmaps work (tricky since each would apply its own animations)
+        final ReportData report = new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("reportMultiTopicmap.json"), ReportData.class);
+
+        final XMLSlideShow pptx = pptxService.report(report, false);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
+
+    @Test
     public void testMixedWidgetReportByDeserialization() throws TemplateLoadException, IOException {
         final ReportData report = new ObjectMapper().readValue(PowerPointServiceImplTest.class.getResource("multiwidgetreport.json"), ReportData.class);
 
