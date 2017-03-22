@@ -78,6 +78,8 @@ import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTChartSpace;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTDPt;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTDoughnutChart;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTLegend;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTLegendEntry;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTLineChart;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTLineSer;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTNumData;
@@ -88,6 +90,7 @@ import org.openxmlformats.schemas.drawingml.x2006.chart.CTPlotArea;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTStrData;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTStrRef;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTStrVal;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTUnsignedInt;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTGradientFillProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTGradientStop;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTGradientStopList;
@@ -526,6 +529,17 @@ public class PowerPointServiceImpl implements PowerPointService {
         categoryData.setPtArray(null);
         numericData.setPtArray(null);
 
+        CTLegend legend = null;
+        final int[] showInLegend = data.getShowInLegend();
+        int nextLegendToShow = 0, nextLegendToShowIdx = -1;
+        if (showInLegend != null) {
+            // We need to write legendEntry elements to hide the legend for chart series we don't want.
+            // Note this only works in PowerPoint, and not OpenOffice.
+            legend = ctChart.isSetLegend() ? ctChart.getLegend() : ctChart.addNewLegend();
+            Arrays.sort(showInLegend);
+            nextLegendToShow = showInLegend[++nextLegendToShowIdx];
+        }
+
         for(int idx = 0; idx < values.length; ++idx) {
             final CTStrVal categoryPoint = categoryData.addNewPt();
             categoryPoint.setIdx(idx);
@@ -552,6 +566,41 @@ public class PowerPointServiceImpl implements PowerPointService {
                 }
 
                 dPtList.add(copiedPt);
+            }
+
+            if (legend != null) {
+                // We're hiding some legend elements. Should we show this index?
+                if (nextLegendToShow == idx) {
+                    // We show this index, find the next one to show.
+                    ++nextLegendToShowIdx;
+                    if (nextLegendToShowIdx < showInLegend.length) {
+                        nextLegendToShow = showInLegend[nextLegendToShowIdx];
+                    }
+                }
+                else {
+                    // We hide this index. If there's already a matching legend entry in the XML, update it,
+                    //   otherwise we create a new legend entry.
+                    boolean found = false;
+                    for (int ii = 0, max = legend.sizeOfLegendEntryArray(); ii < max; ++ii) {
+                        final CTLegendEntry legendEntry = legend.getLegendEntryArray(ii);
+                        final CTUnsignedInt idxLegend = legendEntry.getIdx();
+                        if (idxLegend != null && idxLegend.getVal() == idx) {
+                            found = true;
+                            if (legendEntry.isSetDelete()) {
+                                legendEntry.getDelete().setVal(true);
+                            }
+                            else {
+                                legendEntry.addNewDelete().setVal(true);
+                            }
+                        }
+                    }
+
+                    if (!found) {
+                        final CTLegendEntry idxLegend = legend.addNewLegendEntry();
+                        idxLegend.addNewIdx().setVal(idx);
+                        idxLegend.addNewDelete().setVal(true);
+                    }
+                }
             }
 
             XSSFRow row = sheet.createRow(idx + 1);

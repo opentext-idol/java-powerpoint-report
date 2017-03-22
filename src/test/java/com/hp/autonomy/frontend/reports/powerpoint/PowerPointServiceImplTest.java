@@ -185,6 +185,18 @@ public class PowerPointServiceImplTest {
         Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
+    @Test
+    public void testColoredFillAndStrokeSunburstWithHiddenLegendElements() throws TemplateLoadException, IOException {
+        final SunburstData sunburst = createSunburstData();
+        sunburst.setColors(new String[]{ "#FF0000", "#00FF00", "#0000FF"});
+        sunburst.setStrokeColors(new String[]{ "#FFFF00", "#FF00FF", "#00FFFF"});
+        sunburst.setShowInLegend(new int[]{0, 2});
+
+        final XMLSlideShow pptx = pptxService.sunburst(sunburst);
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
+    }
 
     @Test
     public void testListSingle() throws TemplateLoadException, IOException {
@@ -535,6 +547,7 @@ public class PowerPointServiceImplTest {
                 new double[] { 1, 169, 130 },
                 null,
                 null,
+                null,
                 "RGB Colours"
                 );
     }
@@ -543,6 +556,7 @@ public class PowerPointServiceImplTest {
         return new SunburstData(
                 new String[] { "Cyan", "Magenta", "Yellow", "Black"},
                 new double[] { 0.994, 0, 0.231, 0.337 },
+                null,
                 null,
                 null,
                 "CMYK Colours"

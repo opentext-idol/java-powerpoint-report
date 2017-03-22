@@ -28,6 +28,12 @@ public class SunburstData implements ComposableElement {
     /** List of stroke colors for each category, e.g. '#FF0000'; will default to the template if null. */
     private String[] strokeColors;
 
+    /**
+     * List of category indices which should be shown in the legend, all categories will be shown if null.
+     * Note this only works in PowerPoint, and not Open Office.
+     * */
+    private int[] showInLegend;
+
     /** Optional title to put on the chart. */
     private String title;
 
