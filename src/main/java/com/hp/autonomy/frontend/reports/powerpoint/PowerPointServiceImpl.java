@@ -901,20 +901,26 @@ public class PowerPointServiceImpl implements PowerPointService {
                     halfMark = 8,
                     mark = halfMark * 2,
                     extension = 0.85,
+                    markerHeight = (0.5 + extension) * mark,
                     angle = Math.asin(0.5/ extension) * 180 / Math.PI;
+
+                // Set group position
+                group.setAnchor(new Rectangle2D.Double(centerX - halfMark, centerY - markerHeight, mark, markerHeight));
+                group.setInteriorAnchor(new Rectangle2D.Double(0, 0, mark, markerHeight));
 
                 // Draw a semicircle and a triangle to represent the marker, pointing at the precise x,y location
                 final Path2D.Double path = new Path2D.Double();
-                path.moveTo(centerX, centerY);
-                path.append(new Arc2D.Double(centerX - halfMark, centerY - (0.5 + extension) * mark, mark, mark, -angle, 180 + angle + angle, Arc2D.OPEN), true);
-                path.lineTo(centerX, centerY);
+                path.moveTo(halfMark, markerHeight);
+                path.append(new Arc2D.Double(0, 0, mark, mark, -angle, 180 + angle + angle, Arc2D.OPEN), true);
+                path.lineTo(halfMark, markerHeight);
                 shape.setPath(path);
+                shape.setAnchor(new Rectangle2D.Double(0, 0, mark, markerHeight));
 
                 final XSLFAutoShape disc = group.createAutoShape();
                 disc.setShapeType(ShapeType.DONUT);
                 final double discRadius = 0.25 * mark;
                 final double discDiameter = 2 * discRadius;
-                disc.setAnchor(new Rectangle2D.Double(centerX - discRadius, centerY - discRadius - extension * mark, discDiameter, discDiameter));
+                disc.setAnchor(new Rectangle2D.Double(halfMark - discRadius, halfMark - discRadius, discDiameter, discDiameter));
                 disc.setFillColor(Color.WHITE);
                 disc.setLineColor(Color.WHITE);
 
