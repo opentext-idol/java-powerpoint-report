@@ -886,12 +886,14 @@ public class PowerPointServiceImpl implements PowerPointService {
                 inner.setAnchor(new Rectangle2D.Double(centerX - innerHalfMark, centerY - innerHalfMark, innerMark, innerMark));
             }
             else {
-                final XSLFFreeformShape shape = slide.createFreeform();
+                final XSLFGroupShape group = slide.createGroup();
+
+                final XSLFFreeformShape shape = group.createFreeform();
                 shape.setHorizontalCentered(true);
                 shape.setWordWrap(false);
 
                 shape.setVerticalAlignment(VerticalAlignment.BOTTOM);
-                shape.setLineWidth(1.0);
+                shape.setLineWidth(0.5);
                 shape.setLineColor(color.darker());
                 shape.setFillColor(transparentColor(color, 210));
 
@@ -908,13 +910,26 @@ public class PowerPointServiceImpl implements PowerPointService {
                 path.lineTo(centerX, centerY);
                 shape.setPath(path);
 
-                // We create a hyperlink which links back to this slide; so we get hover-over-detail-text on the marker
-                final CTHyperlink link = ((CTShape) shape.getXmlObject()).getNvSpPr().getCNvPr().addNewHlinkClick();
-                link.setTooltip(marker.getText());
-                final PackageRelationship rel = shape.getSheet().getPackagePart().addRelationship(slide.getPackagePart().getPartName(),
-                        TargetMode.INTERNAL, XSLFRelation.SLIDE.getRelation());
-                link.setId(rel.getId());
-                link.setAction("ppaction://hlinksldjump");
+                final XSLFAutoShape disc = group.createAutoShape();
+                disc.setShapeType(ShapeType.DONUT);
+                final double discRadius = 0.25 * mark;
+                final double discDiameter = 2 * discRadius;
+                disc.setAnchor(new Rectangle2D.Double(centerX - discRadius, centerY - discRadius - extension * mark, discDiameter, discDiameter));
+                disc.setFillColor(Color.WHITE);
+                disc.setLineColor(Color.WHITE);
+
+                if(StringUtils.isNotEmpty(marker.getText())) {
+                    final PackageRelationship rel = shape.getSheet().getPackagePart().addRelationship(slide.getPackagePart().getPartName(),
+                            TargetMode.INTERNAL, XSLFRelation.SLIDE.getRelation());
+                    // We create a hyperlink which links back to this slide; so we get hover-over-detail-text on the marker
+                    // Annoyingly, you can't put a link on the group, just on the individual shapes.
+                    for(XSLFShape clickable : group.getShapes()) {
+                        final CTHyperlink link = ((CTShape) clickable.getXmlObject()).getNvSpPr().getCNvPr().addNewHlinkClick();
+                        link.setTooltip(marker.getText());
+                        link.setId(rel.getId());
+                        link.setAction("ppaction://hlinksldjump");
+                    }
+                }
             }
         }
 
