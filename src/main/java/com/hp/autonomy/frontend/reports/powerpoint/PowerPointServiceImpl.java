@@ -1195,7 +1195,7 @@ public class PowerPointServiceImpl implements PowerPointService {
     }
 
     /**
-     * Internal implementation to add a date graph (aka line chart with time-series x-axis) to a slide, based on a template.
+     * Internal implementation to add a date graph (aka xy scatterplot chart with time-series x-axis) to a slide, based on a template.
      * @param template the parsed template information.
      * @param slide the slide to add to.
      * @param anchor optional bounding rectangle to draw onto, in PowerPoint coordinates.
@@ -1235,7 +1235,7 @@ public class PowerPointServiceImpl implements PowerPointService {
         // In the template, we have two <c:scatterChart> objects, one for the primary axis, one for the secondary.
         if (!useSecondaryAxis) {
             // Discard the extra axes
-            // OpenOffice is happy enough if you remove the scatter chart, but PowerPoint will complain it's a corrupt
+            // OpenOffice is happy enough if you remove the scatterplot chart, but PowerPoint will complain it's a corrupt
             //   file and unhelpfully delete the entire chart when you choose 'repair' if any orphan axes remain.
             plotArea.removeScatterChart(1);
             plotArea.removeValAx(3);

@@ -11,7 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO to represent time-series data to plot on a line chart with time on the x-axis.
+ * DTO to represent time-series data to plot on a xy scatterplot chart with time on the x-axis.
  */
 @Data
 @NoArgsConstructor

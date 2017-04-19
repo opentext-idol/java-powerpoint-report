@@ -38,7 +38,7 @@ class SlideShowTemplate {
     private final XMLSlideShow pptx;
     /** Doughnut chart XML object, cached so we can clone it. */
     private final ImmutablePair<XSLFChart, CTGraphicalObjectFrame> doughnutChart;
-    /** Line chart XML object, cached so we can clone it.  */
+    /** An xy scatterplot chart XML object, cached so we can clone it.  */
     private final ImmutablePair<XSLFChart, CTGraphicalObjectFrame> graphChart;
 
     SlideShowTemplate(final InputStream inputStream) throws TemplateLoadException {
@@ -49,7 +49,7 @@ class SlideShowTemplate {
             final List<XSLFSlide> slides = pptx.getSlides();
 
             if (slides.size() != 2) {
-                throw new TemplateLoadException("Template powerpoint should have two slides, doughnut chart on slide 1 and time-axis line chart on slide 2");
+                throw new TemplateLoadException("Template powerpoint should have two slides, doughnut chart on slide 1 and time-axis xy scatterplot chart on slide 2");
             }
 
             XSLFSlide slide = slides.get(0);
@@ -60,10 +60,10 @@ class SlideShowTemplate {
                 throw new TemplateLoadException("First slide has the wrong chart type, should have a doughnut chart");
             }
 
-            graphChart = getChart(slides.get(1), "Second slide should have a time-axis line chart");
+            graphChart = getChart(slides.get(1), "Second slide should have a time-axis xy scatterplot chart");
 
             if (ArrayUtils.isEmpty(graphChart.getLeft().getCTChart().getPlotArea().getScatterChartArray())) {
-                throw new TemplateLoadException("Second slide has the wrong chart type, should have a time-axis xy scatter chart");
+                throw new TemplateLoadException("Second slide has the wrong chart type, should have a time-axis xy scatterplot chart");
             }
 
             // Remove the slides afterwards
@@ -96,8 +96,8 @@ class SlideShowTemplate {
     }
 
     /**
-     * Get the graph line chart from the second slide. Do not modify this object.
-     * @return the graph line chart from the second slide
+     * Get the graph xy scatterplot chart from the second slide. Do not modify this object.
+     * @return the graph xy scatterplot chart from the second slide
      */
     XSLFChart getGraphChart() {
         return graphChart.getLeft();

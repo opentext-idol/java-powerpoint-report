@@ -75,7 +75,7 @@ public interface PowerPointService {
 
     /**
      * Renders a date graph as a PowerPoint presentation.
-     * This is drawn based on the line chart (which must be contained in the second slide in the template).
+     * This is drawn based on the xy scatterplot chart (which must be contained in the second slide in the template).
      * @param data the data representing the graph series to plot.
      * @return a PowerPoint presentation with a single slide.
      * @throws TemplateLoadException if the template is invalid.
