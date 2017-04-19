@@ -80,13 +80,14 @@ import org.openxmlformats.schemas.drawingml.x2006.chart.CTDPt;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTDoughnutChart;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTLegend;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTLegendEntry;
-import org.openxmlformats.schemas.drawingml.x2006.chart.CTLineChart;
-import org.openxmlformats.schemas.drawingml.x2006.chart.CTLineSer;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTMarker;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTNumData;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTNumRef;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTNumVal;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTPieSer;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTPlotArea;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTScatterChart;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTScatterSer;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTStrData;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTStrRef;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTStrVal;
@@ -490,39 +491,11 @@ public class PowerPointServiceImpl implements PowerPointService {
 
             // We need to unset any styles on the existing template
             if (overrideFill) {
-                if (spPr.isSetBlipFill()) {
-                    spPr.unsetBlipFill();
-                }
-                if (spPr.isSetGradFill()) {
-                    spPr.unsetGradFill();
-                }
-                if (spPr.isSetGrpFill()) {
-                    spPr.unsetGrpFill();
-                }
-                if (spPr.isSetNoFill()) {
-                    spPr.unsetNoFill();
-                }
-                if (spPr.isSetSolidFill()) {
-                    spPr.unsetSolidFill();
-                }
-                if (spPr.isSetPattFill()) {
-                    spPr.unsetPattFill();
-                }
+                unsetSpPrFills(spPr);
             }
 
             if (overrideStroke) {
-                if (ln.isSetSolidFill()) {
-                    ln.unsetSolidFill();
-                }
-                if (ln.isSetPattFill()) {
-                    ln.unsetPattFill();
-                }
-                if (ln.isSetGradFill()) {
-                    ln.unsetGradFill();
-                }
-                if (ln.isSetNoFill()) {
-                    ln.unsetNoFill();
-                }
+                unsetLineFills(ln);
             }
         }
 
@@ -618,6 +591,42 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
         catch(IOException|InvalidFormatException e) {
             throw new TemplateLoadException("Error writing chart in loaded template", e);
+        }
+    }
+
+    private static void unsetLineFills(final CTLineProperties ln) {
+        if (ln.isSetSolidFill()) {
+            ln.unsetSolidFill();
+        }
+        if (ln.isSetPattFill()) {
+            ln.unsetPattFill();
+        }
+        if (ln.isSetGradFill()) {
+            ln.unsetGradFill();
+        }
+        if (ln.isSetNoFill()) {
+            ln.unsetNoFill();
+        }
+    }
+
+    private static void unsetSpPrFills(final CTShapeProperties spPr) {
+        if (spPr.isSetBlipFill()) {
+            spPr.unsetBlipFill();
+        }
+        if (spPr.isSetGradFill()) {
+            spPr.unsetGradFill();
+        }
+        if (spPr.isSetGrpFill()) {
+            spPr.unsetGrpFill();
+        }
+        if (spPr.isSetNoFill()) {
+            spPr.unsetNoFill();
+        }
+        if (spPr.isSetSolidFill()) {
+            spPr.unsetSolidFill();
+        }
+        if (spPr.isSetPattFill()) {
+            spPr.unsetPattFill();
         }
     }
 
@@ -1223,19 +1232,21 @@ public class PowerPointServiceImpl implements PowerPointService {
         final CTPlotArea plotArea = ctChart.getPlotArea();
         final XSSFSheet sheet = wb.getSheetAt(0);
 
-        // In the template, we have two <c:lineChart> objects, one for the primary axis, one for the secondary.
+        // In the template, we have two <c:scatterChart> objects, one for the primary axis, one for the secondary.
         if (!useSecondaryAxis) {
             // Discard the extra axes
-            // OpenOffice is happy enough if you remove the line chart, but PowerPoint will complain it's a corrupt
+            // OpenOffice is happy enough if you remove the scatter chart, but PowerPoint will complain it's a corrupt
             //   file and unhelpfully delete the entire chart when you choose 'repair' if any orphan axes remain.
-            plotArea.removeLineChart(1);
-            plotArea.removeValAx(1);
-            plotArea.removeDateAx(1);
+            plotArea.removeScatterChart(1);
+            plotArea.removeValAx(3);
+            plotArea.removeValAx(2);
         }
 
-        final CTLineChart primaryChart = plotArea.getLineChartArray()[0];
-        final CTLineSer[] primarySeries = primaryChart.getSerArray();
-        primarySeries[0].getDPtList().clear();
+        for(CTScatterChart ctScatterChart : plotArea.getScatterChartArray()) {
+            for(final CTScatterSer ser : ctScatterChart.getSerArray()) {
+                ser.getDPtList().clear();
+            }
+        }
 
         int primarySeriesCount = 0;
         int secondarySeriesCount = 0;
@@ -1243,12 +1254,12 @@ public class PowerPointServiceImpl implements PowerPointService {
         for (int seriesIdx = 0; seriesIdx < rows.size(); ++seriesIdx) {
             final DategraphData.Row row = rows.get(seriesIdx);
 
-            final CTLineChart tgtChart = plotArea.getLineChartArray(row.isSecondaryAxis() ? 1 : 0);
+            final CTScatterChart tgtChart = plotArea.getScatterChartArray(row.isSecondaryAxis() ? 1 : 0);
 
-            final CTLineSer[] serArray = tgtChart.getSerArray();
+            final CTScatterSer[] serArray = tgtChart.getSerArray();
             final int createdSeriesIdx = row.isSecondaryAxis() ? secondarySeriesCount++ : primarySeriesCount++;
 
-            final CTLineSer curSeries;
+            final CTScatterSer curSeries;
 
             if (createdSeriesIdx < serArray.length) {
                 curSeries = serArray[createdSeriesIdx];
@@ -1258,7 +1269,7 @@ public class PowerPointServiceImpl implements PowerPointService {
                 curSeries.set(serArray[0].copy());
             }
 
-            updateCTLineSer(data, sheet, seriesIdx, curSeries);
+            updateCTScatterSer(data, sheet, seriesIdx, curSeries);
         }
 
         try {
@@ -1276,7 +1287,7 @@ public class PowerPointServiceImpl implements PowerPointService {
      * @param seriesIdx the index of the data in the dategraph data.
      * @param series the XML object representing the series in the chart.
      */
-    private static void updateCTLineSer(final DategraphData data, final XSSFSheet sheet, final int seriesIdx, final CTLineSer series) {
+    private static void updateCTScatterSer(final DategraphData data, final XSSFSheet sheet, final int seriesIdx, final CTScatterSer series) {
         final String sheetName = sheet.getSheetName();
 
         // the series idx starts from 0
@@ -1311,7 +1322,22 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
 
         final CTSRgbColor fillClr = fill.addNewSrgbClr();
-        fillClr.setVal(new byte[]{ (byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue()});
+        final byte[] colorBytes = {(byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue()};
+        fillClr.setVal(colorBytes);
+
+        final CTMarker marker = series.getMarker();
+
+        if (marker != null) {
+            final CTShapeProperties markerSpPr = marker.getSpPr();
+            unsetSpPrFills(markerSpPr);
+            markerSpPr.addNewSolidFill().addNewSrgbClr().setVal(colorBytes);
+
+            final CTLineProperties markerLn = markerSpPr.getLn();
+            if (markerLn != null) {
+                unsetLineFills(markerLn);
+                markerLn.addNewSolidFill().addNewSrgbClr().setVal(colorBytes);
+            }
+        }
 
         final CTStrRef strRef = series.getTx().getStrRef();
         strRef.getStrCache().getPtArray()[0].setV(title);
@@ -1320,7 +1346,7 @@ public class PowerPointServiceImpl implements PowerPointService {
 
         final long[] timestamps = data.getTimestamps();
         {
-            final CTNumRef timestampCatNumRef = series.getCat().getNumRef();
+            final CTNumRef timestampCatNumRef = series.getXVal().getNumRef();
             timestampCatNumRef.setF(new AreaReference(
                 new CellReference(sheetName, 1, 0, true, true),
                 new CellReference(sheetName, 1 + timestamps.length, 0, true, true)
@@ -1340,7 +1366,7 @@ public class PowerPointServiceImpl implements PowerPointService {
         {
             final double[] seriesData = row.getValues();
 
-            final CTNumRef valuesNumRef = series.getVal().getNumRef();
+            final CTNumRef valuesNumRef = series.getYVal().getNumRef();
             valuesNumRef.setF(new AreaReference(
                 new CellReference(sheetName, 1, seriesIdx + 1, true, true),
                 new CellReference(sheetName, 1 + timestamps.length, seriesIdx + 1, true, true)

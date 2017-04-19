@@ -13,7 +13,6 @@ import javax.xml.namespace.QName;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.poi.POIXMLDocumentPart;
-import static org.apache.poi.util.Units.EMU_PER_POINT;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFChart;
 import org.apache.poi.xslf.usermodel.XSLFGraphicFrame;
@@ -25,6 +24,8 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTNonVisualDrawingProps;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTPoint2D;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTPositiveSize2D;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTGraphicalObjectFrame;
+
+import static org.apache.poi.util.Units.EMU_PER_POINT;
 
 /**
  * Internal implementation class to keep track of required elements from the template.
@@ -55,14 +56,14 @@ class SlideShowTemplate {
 
             doughnutChart = getChart(slide, "First slide should have a doughnut chart");
 
-            if (doughnutChart == null || ArrayUtils.isEmpty(doughnutChart.getLeft().getCTChart().getPlotArea().getDoughnutChartArray())) {
+            if (ArrayUtils.isEmpty(doughnutChart.getLeft().getCTChart().getPlotArea().getDoughnutChartArray())) {
                 throw new TemplateLoadException("First slide has the wrong chart type, should have a doughnut chart");
             }
 
             graphChart = getChart(slides.get(1), "Second slide should have a time-axis line chart");
 
-            if (graphChart == null || ArrayUtils.isEmpty(graphChart.getLeft().getCTChart().getPlotArea().getLineChartArray())) {
-                throw new TemplateLoadException("Second slide has the wrong chart type, should have a time-axis line chart");
+            if (ArrayUtils.isEmpty(graphChart.getLeft().getCTChart().getPlotArea().getScatterChartArray())) {
+                throw new TemplateLoadException("Second slide has the wrong chart type, should have a time-axis xy scatter chart");
             }
 
             // Remove the slides afterwards
