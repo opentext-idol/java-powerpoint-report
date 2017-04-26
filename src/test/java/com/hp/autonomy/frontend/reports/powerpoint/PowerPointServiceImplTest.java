@@ -36,6 +36,7 @@ public class PowerPointServiceImplTest {
     private static final String sampleJPEGWithoutHeader = "/9j/4AAQSkZJRgABAQAASABIAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAAeADIDASIAAhEBAxEB/8QAGQABAQEBAQEAAAAAAAAAAAAAAAcGBQQI/8QAJRAAAQQCAgICAgMAAAAAAAAAAQIDBAUABgcREiEIEyMxMkFR/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAUDBgT/xAAjEQEAAQQBBAIDAAAAAAAAAAABEQACAwQhBRIxURNBBhax/9oADAMBAAIRAxEAPwD7NxjMtypuUrjzjjZN4hVC7N+jrX5qIqVBPmUJJ7USR0gfyUR78QroE9A9Zra+Tbz2a+Im69LT65WDl4Oa4KtTjIPK+X/HmswqJneIdjW2s+qiWdgwBHAgof8ASVFJf8nArorCWvtWEFJUB3msY5/06ZyY/wAWQa23k2UWUiHIkNIYLTTimg6CWy6JH1+JH5Q0W+/XllnN+LdYwDdfr3doXXT9dtqCj4Tkj2IkiUhqmYybcJcq2/KsTZ5VrqUqkFHsEyoYDpbIcQyso6JS4r8qSk+foJBUAkqAJyk5L39HN0zZu1dgC+3zCP1PkkpTGMZ46Uzl7VrlbuGs22pXAcMC6gv18r6leK/qdbKF+J/o9KPR/wBzqYzTFkvw3mTGxcMj6Tw0qTMfHHW4bsSTA3ndYchqBFrJ0iJZoju2kaMsqYRIW20CCgEoCmvrV4eiT7z2Xvx/1DZN8h79c3N9KfgWTFtGguyGnI7MlkDwLa1Nl9tHYCi0h0Nk/tPvKbjK/wCx9V7/AJPme6EniYYk8egD0AEAFJrJ6JxvUceythfpbO0eY2O1fuXosp1C2Y0h5RW79PSApKVKV2QpSv0Ous1mMZL2dnLuZXNnu7rmJfcEfwpTGMZhSv/Z";
     private static final String sampleJPEGImage = "data:image/jpeg;base64," + sampleJPEGWithoutHeader;
     private static final String samplePNGImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAFCAIAAAAVLyF7AAAAPUlEQVQI14WNSQoAMAgDo/b/Lxamh9JiF+gcZJJDlCbA1z0zawXcvq5HhApmVr1GSa6d55NFO/IYA47VQQfmMSztMBTTBAAAAABJRU5ErkJggg==";
+    public static final String JPEG_REFERENCE_ID = "tinyJPG";
 
     private PowerPointService pptxService;
 
@@ -46,6 +47,13 @@ public class PowerPointServiceImplTest {
             // Keep 1% of left and right margin free, and 2% of top and bottom margin free
             () -> new TemplateSettings(new Anchor(0.01, 0.02, 0.98, 0.96)),
             new DefaultImageSource() {
+                @Override
+                public ImageData getImageData(final String imageId) throws IllegalArgumentException {
+                    return JPEG_REFERENCE_ID.equals(imageId)
+                        ? super.getImageData(sampleJPEGImage)
+                        : super.getImageData(imageId);
+                }
+
                 @Override
                 public boolean allowHttpURI(final URI uri) {
                     // e.g. deny all external HTTP URLs
@@ -239,6 +247,20 @@ public class PowerPointServiceImplTest {
         testWrite(pptx);
 
         Assert.assertTrue(pptx.getSlides().size() > 1);
+    }
+
+    @Test
+    public void testListSingleMappedImage() throws TemplateLoadException, IOException {
+        // testing using a mapped ID which doesn't contain any real data, but which the image source knows how to
+        //   convert to a real image.
+        final ListData listData = new ListData(new ListData.Document[]{
+                new ListData.Document("title1", "5 months ago", "reference", "summary", JPEG_REFERENCE_ID)
+        });
+
+        final XMLSlideShow pptx = pptxService.list(listData, "Showing 1 to 1 of 1 results", "Sort by Relevance");
+        testWrite(pptx);
+
+        Assert.assertEquals(pptx.getSlides().size(), 1);
     }
 
     @Test
