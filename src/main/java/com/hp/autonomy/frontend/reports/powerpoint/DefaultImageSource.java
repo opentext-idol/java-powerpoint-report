@@ -28,6 +28,12 @@ public class DefaultImageSource implements ImageSource {
 
     private static final String DATA_PREFIX = "data:";
 
+    /**
+     * Accepts HTTP/HTTPs URLs or base64-encoded image data and converts them to image data.
+     * @param imageId the image identifier.
+     * @return image data corresponding to the image.
+     * @throws IllegalArgumentException if we can't fetch the image.
+     */
     @Override
     public ImageData getImageData(final String imageId) throws IllegalArgumentException {
         if(imageId.startsWith("https:") || imageId.startsWith("http:")) {
@@ -83,7 +89,7 @@ public class DefaultImageSource implements ImageSource {
     }
 
     /**
-     * Controls whether we should allow this URL to be downloaded.
+     * Controls whether we should allow a URL to be downloaded.
      * @param uri the URI to check.
      * @return true if we should allow downloading it.
      */

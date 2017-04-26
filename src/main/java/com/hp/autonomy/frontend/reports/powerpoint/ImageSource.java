@@ -13,9 +13,17 @@ package com.hp.autonomy.frontend.reports.powerpoint;
  *
  * You might also want to override the DefaultImageSource's default whitelist, which only allows URLs with a path which
  *   ends with '.jpeg', '.jpg', '.png' or '.gif'.
+ *
+ *  @see com.hp.autonomy.frontend.reports.powerpoint.DefaultImageSource
  */
 public interface ImageSource {
 
+    /**
+     * Converts an image identifier into image data.
+     * @param imageId the image identifier.
+     * @return image data corresponding to the image.
+     * @throws IllegalArgumentException if we can't fetch the image.
+     */
     ImageData getImageData(final String imageId) throws IllegalArgumentException;
 
     ImageSource DEFAULT = new DefaultImageSource();

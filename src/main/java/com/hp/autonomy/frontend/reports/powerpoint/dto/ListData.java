@@ -68,8 +68,8 @@ public class ListData implements ComposableElement {
         private String summary;
 
         /**
-         * Optional base64-encoded JPEG/PNG thumbnail. It can either start with a data URL e.g. 'data:image/jpeg;base64,'
-         * or if the data: schema is not provided, it's assumed to be a JPEG data URL.
+         * Optional image identifier for a thumbnail image, which will be mapped to an image for embedding.
+         * @see com.hp.autonomy.frontend.reports.powerpoint.ImageSource
          */
         private String thumbnail;
     }

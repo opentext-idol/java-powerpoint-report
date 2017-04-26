@@ -18,7 +18,8 @@ import lombok.NoArgsConstructor;
 public class MapData implements ComposableElement {
 
     /**
-     * Base64-encoded PNG/JPEG data URL, should start with e.g. 'data:image/jpeg;base64,'.
+     * Optional image identifier for a thumbnail image, which will be mapped to an image for embedding.
+     * @see com.hp.autonomy.frontend.reports.powerpoint.ImageSource
      */
     private String image;
 

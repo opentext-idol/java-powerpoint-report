@@ -795,14 +795,14 @@ public class PowerPointServiceImpl implements PowerPointService {
     }
 
     /**
-     * Utility function to add base64-encoded PNG or JPEG data to a PowerPoint presentation.
+     * Utility function to add image data to a PowerPoint presentation.
      * @param imageSource the image source.
      * @param ppt the presentation to add to.
-     * @param uri the image
+     * @param imageId the image identifier, typically a URI.
      * @return the picture data.
      */
-    private static XSLFPictureData addPictureData(final ImageSource imageSource, final XMLSlideShow ppt, final String uri) {
-        final ImageData imageData = imageSource.getImageData(uri);
+    private static XSLFPictureData addPictureData(final ImageSource imageSource, final XMLSlideShow ppt, final String imageId) {
+        final ImageData imageData = imageSource.getImageData(imageId);
         return ppt.addPicture(imageData.getData(), imageData.getType());
     }
 

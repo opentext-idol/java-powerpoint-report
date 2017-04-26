@@ -18,18 +18,25 @@ See https://hpe-idol.github.io/java-powerpoint-report/ for [project information]
 
 The primary interface to working with this API is the [```PowerPointService```](src/main/java/com/hp/autonomy/frontend/reports/powerpoint/PowerPointService.java) interface, which is implemented in  [```PowerPointServiceImpl```](src/main/java/com/hp/autonomy/frontend/reports/powerpoint/PowerPointServiceImpl.java). 
 
-The library is bundled with a default PowerPoint template and settings, which you can use e.g.
+The library is bundled with a default PowerPoint template, settings and image source which you can use e.g.
 ```java
    PowerPointService pptxService = new PowerPointServiceImpl();
 ```
 
-Alternatively, you can provide your own template PowerPoint file and settings, e.g.
+Alternatively, you can provide your own template PowerPoint file, settings and image source, e.g.
 ```java
     PowerPointServiceImpl pptxService = new PowerPointServiceImpl(
         // use a custom template
         () -> new FileInputStream("/path/to/my/template.pptx"),
         // reserve 8% of the top of the page (e.g. for logos etc.)
-        () -> new TemplateSettings(new Anchor(0, 0.08, 1, 0.92))
+        () -> new TemplateSettings(new Anchor(0, 0.08, 1, 0.92)),
+        new DefaultImageSource() {
+            @Override
+            public boolean allowHttpURI(final URI uri) {
+                // deny all external HTTP URLs to prevent malicious users from using this as an open proxy
+                return false;
+            }
+        }
     );
 
     // You should validate that your template is suitable before trying to generate reports.
@@ -44,6 +51,10 @@ The template must consist of two slides in the following order:
 2. a slide with a xy scatterplot chart, with three data series: a time-based x-axis, a numeric primary y-axis, and a numeric secondary y-axis.
  
 You can see an example template in [template.pptx](src/main/resources/com/hp/autonomy/frontend/reports/powerpoint/templates/template.pptx), and an example of embedding your logo into the default master slide in [validTemplateWithLogo.pptx](src/test/resources/com/hp/autonomy/frontend/reports/powerpoint/validTemplateWithLogo.pptx).
+
+The image source controls how image identifiers are converted to images to be embedded into the PowerPoint file. 
+The default implementation (DefaultImageSource) embeds base64-encoded images directly, and will download HTTP and HTTPS URLs for embedding (since PowerPoint doesn't allow external image links).
+It requires that all HTTP/HTTPS URLs end with a '.jpeg', '.jpg', '.png' or '.gif' extension to mitigate attacks from malicious users using it as an open proxy; you may want to override the allowHttpURI() function as above if you have a list of sites to whitelist. 
 
 ### Using the service
 
