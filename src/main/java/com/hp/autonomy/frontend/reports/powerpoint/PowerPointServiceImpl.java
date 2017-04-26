@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.POIXMLDocumentPart;
@@ -44,7 +43,6 @@ import org.apache.poi.openxml4j.opc.PackagePartName;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackagingURIHelper;
 import org.apache.poi.openxml4j.opc.TargetMode;
-import org.apache.poi.sl.usermodel.PictureData;
 import org.apache.poi.sl.usermodel.ShapeType;
 import org.apache.poi.sl.usermodel.TableCell;
 import org.apache.poi.sl.usermodel.TextParagraph;
@@ -134,18 +132,26 @@ import static org.apache.poi.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
  */
 public class PowerPointServiceImpl implements PowerPointService {
 
-    /** The expected schema prefix for a data url. */
-    private static final String BASE64_SCHEMA= "data:";
-    /** The expected schema prefix for a JPEG-encoded base64 data url. */
-    private static final String BASE64_JPEG = BASE64_SCHEMA + "image/jpeg;base64,";
-    /** The expected schema prefix for a PNG-encoded base64 data url. */
-    private static final String BASE64_PNG = BASE64_SCHEMA + "image/png;base64,";
-
     /** The source for the template file. */
     private final TemplateSource pptxTemplate;
 
     /** The source for template settings, like anchor points etc. */
     private final TemplateSettingsSource pptxSettings;
+
+    /** The image source for converting HTTP/HTTPS URLs to image data. */
+    private final ImageSource imageSource;
+
+    /**
+     * Constructor for the PowerPointServiceImpl, allowing you to provide your own template and settings.
+     * @param pptxTemplate what template .pptx file to use.
+     * @param pptxSettings what template settings to use.
+     * @param imageSource what image source to use.
+     */
+    public PowerPointServiceImpl(final TemplateSource pptxTemplate, final TemplateSettingsSource pptxSettings, final ImageSource imageSource) {
+        this.pptxTemplate = pptxTemplate;
+        this.pptxSettings = pptxSettings;
+        this.imageSource = imageSource;
+    }
 
     /**
      * Constructor for the PowerPointServiceImpl, allowing you to provide your own template and settings.
@@ -153,15 +159,14 @@ public class PowerPointServiceImpl implements PowerPointService {
      * @param pptxSettings what template settings to use.
      */
     public PowerPointServiceImpl(final TemplateSource pptxTemplate, final TemplateSettingsSource pptxSettings) {
-        this.pptxTemplate = pptxTemplate;
-        this.pptxSettings = pptxSettings;
+        this(pptxTemplate, pptxSettings, ImageSource.DEFAULT);
     }
 
     /**
      * Constructor which uses the default template and default settings, which don't have any logos or margins reserved.
      */
     public PowerPointServiceImpl() {
-        this(TemplateSource.DEFAULT, TemplateSettingsSource.DEFAULT);
+        this(TemplateSource.DEFAULT, TemplateSettingsSource.DEFAULT, ImageSource.DEFAULT);
     }
 
     @Override
@@ -783,7 +788,7 @@ public class PowerPointServiceImpl implements PowerPointService {
             textHeight = 0;
         }
 
-        final XSLFPictureData picture = addPictureData(ppt, image);
+        final XSLFPictureData picture = addPictureData(imageSource, ppt, image);
         addMap(sl, remainingSpace(pageAnchor, textHeight), picture, map.getMarkers());
 
         return ppt;
@@ -791,34 +796,14 @@ public class PowerPointServiceImpl implements PowerPointService {
 
     /**
      * Utility function to add base64-encoded PNG or JPEG data to a PowerPoint presentation.
+     * @param imageSource the image source.
      * @param ppt the presentation to add to.
-     * @param image the image, encoded as a base64 data: schema URL.
+     * @param uri the image
      * @return the picture data.
      */
-    private static XSLFPictureData addPictureData(final XMLSlideShow ppt, final String image) {
-        final PictureData.PictureType type;
-        if(image.startsWith(BASE64_PNG)) {
-            type = PictureData.PictureType.PNG;
-        }
-        else if(image.startsWith(BASE64_JPEG)) {
-            type = PictureData.PictureType.JPEG;
-        }
-        else {
-            throw new IllegalArgumentException("Unsupported image type");
-        }
-
-        final byte[] bytes = Base64.decodeBase64(image.split(",")[1]);
-        return ppt.addPicture(bytes, type);
-    }
-
-    /**
-     * Utility function to add a prefix to a base-64 encoded image, if it doesn't already start with a data: URL schema.
-     * @param prefix the prefix to add.
-     * @param image the image as a string.
-     * @return the image unmodified if it has the data: prefix, or the prefix concatenated with image string otherwise.
-     */
-    private static String ensureDataPrefix(final String prefix, final String image) {
-        return image.startsWith(BASE64_SCHEMA) ? image : prefix + image;
+    private static XSLFPictureData addPictureData(final ImageSource imageSource, final XMLSlideShow ppt, final String uri) {
+        final ImageData imageData = imageSource.getImageData(uri);
+        return ppt.addPicture(imageData.getData(), imageData.getType());
     }
 
     /**
@@ -965,24 +950,25 @@ public class PowerPointServiceImpl implements PowerPointService {
     public XMLSlideShow list(final ListData documentList, final String results, final String sortBy) throws TemplateLoadException {
         final XMLSlideShow ppt = loadTemplate().getSlideShow();
 
-        addList(ppt, null, createPageAnchor(ppt), true, documentList, results, sortBy);
+        addList(imageSource, ppt, null, createPageAnchor(ppt), true, documentList, results, sortBy);
 
         return ppt;
     }
 
     /**
      * Internal implementation to add a list of documents to a presentation; either as a single slide or a series of slides.
+     * @param imageSource the image source to convert images to data.
      * @param ppt the presentation to add to.
      * @param sl the slide to add to (can be null if pagination is enabled).
      * @param anchor bounding rectangle to draw onto, in PowerPoint coordinates.
      * @param paginate whether to render results as multiple slides if they don't fit on one slide.
      * @param data the documents to render.
      * @param results optional string to render into the top-left corner of the available space.
-*                  Will appear on each page if pagination is enabled.
+     *                  Will appear on each page if pagination is enabled.
      * @param sortBy optional string to render into the top-right corner of the available space.
-*                  Will appear on each page if pagination is enabled.
+     *                  Will appear on each page if pagination is enabled.
      */
-    private static void addList(final XMLSlideShow ppt, XSLFSlide sl, final Rectangle2D.Double anchor, final boolean paginate, final ListData data, final String results, final String sortBy) {
+    private static void addList(final ImageSource imageSource, final XMLSlideShow ppt, XSLFSlide sl, final Rectangle2D.Double anchor, final boolean paginate, final ListData data, final String results, final String sortBy) {
         final double
                 // How much space to leave at the left and right edge of the slide
                 xMargin = 20,
@@ -1081,7 +1067,7 @@ public class PowerPointServiceImpl implements PowerPointService {
 
             if (StringUtils.isNotBlank(doc.getThumbnail())) {
                 try {
-                    final XSLFPictureData pictureData = addPictureData(ppt, ensureDataPrefix(BASE64_JPEG, doc.getThumbnail()));
+                    final XSLFPictureData pictureData = addPictureData(imageSource, ppt, doc.getThumbnail());
                     // Picture reuse is automatic
                     picture = sl.createPicture(pictureData);
                     picture.setAnchor(new Rectangle2D.Double(xCursor, yCursor + thumbnailOffset + thumbMargin, thumbW, thumbH));
@@ -1504,11 +1490,11 @@ public class PowerPointServiceImpl implements PowerPointService {
             }
             else if (data instanceof ListData) {
                 final ListData listData = (ListData) data;
-                addList(ppt, slide, anchor, false, listData, null, null);
+                addList(imageSource, ppt, slide, anchor, false, listData, null, null);
             }
             else if (data instanceof MapData) {
                 final MapData mapData = (MapData) data;
-                addMap(slide, anchor, addPictureData(ppt, mapData.getImage()), mapData.getMarkers());
+                addMap(slide, anchor, addPictureData(imageSource, ppt, mapData.getImage()), mapData.getMarkers());
             }
             else if (data instanceof SunburstData) {
                 addSunburst(template, slide, anchor, (SunburstData) data, shapeId, "relId" + shapeId);

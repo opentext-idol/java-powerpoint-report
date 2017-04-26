@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.junit.Assert;
@@ -43,7 +44,14 @@ public class PowerPointServiceImplTest {
         pptxService = new PowerPointServiceImpl(
             TemplateSource.DEFAULT,
             // Keep 1% of left and right margin free, and 2% of top and bottom margin free
-            () -> new TemplateSettings(new Anchor(0.01, 0.02, 0.98, 0.96))
+            () -> new TemplateSettings(new Anchor(0.01, 0.02, 0.98, 0.96)),
+            new DefaultImageSource() {
+                @Override
+                public boolean allowHttpURI(final URI uri) {
+                    // e.g. deny all external HTTP URLs
+                    return false;
+                }
+            }
         );
     }
 
@@ -70,7 +78,8 @@ public class PowerPointServiceImplTest {
 
         new PowerPointServiceImpl(
             () -> new FileInputStream(blankFile),
-            TemplateSettingsSource.DEFAULT
+            TemplateSettingsSource.DEFAULT,
+            ImageSource.DEFAULT
         ).validateTemplate();
     }
 
@@ -107,7 +116,8 @@ public class PowerPointServiceImplTest {
     private static void testResourceAsTemplate(final String resource) throws TemplateLoadException {
         new PowerPointServiceImpl(
                 () -> PowerPointServiceImplTest.class.getResourceAsStream(resource),
-                TemplateSettingsSource.DEFAULT
+                TemplateSettingsSource.DEFAULT,
+                ImageSource.DEFAULT
         ).validateTemplate();
     }
 
