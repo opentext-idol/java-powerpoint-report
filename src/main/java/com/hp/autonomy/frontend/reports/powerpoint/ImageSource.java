@@ -7,14 +7,15 @@ package com.hp.autonomy.frontend.reports.powerpoint;
 /**
  * An interface to convert image identifiers into actual image data for embedding into PowerPoint.
  *
- * The default implementation (DefaultImageSource) fetches images and parses data URLs directly, but if you have a
- *   more compact representation to uniquely identify your images, you could provide your own custom ImageSource class
- *   to convert your compact image identifiers into actual image data.
+ * The default implementation (DataUriImageSource) only handles data URIs, but if you have a more compact representation
+ *   to uniquely identify your images, you could provide your own custom ImageSource class to convert your compact image
+ *   identifiers into actual image data; which would save some round-trip data.
  *
- * You might also want to override the DefaultImageSource's default whitelist, which only allows URLs with a path which
- *   ends with '.jpeg', '.jpg', '.png' or '.gif'.
+ * If you have a mix of HTTP/HTTPs links and data uris, you can use WebAndDataUriImageSource; you may want to override
+ *   its default whitelist, which only allows URLs with a path which ends with '.jpeg', '.jpg', '.png' or '.gif'.
  *
- *  @see com.hp.autonomy.frontend.reports.powerpoint.DefaultImageSource
+ *  @see DataUriImageSource
+ *  @see WebAndDataUriImageSource
  */
 public interface ImageSource {
 
@@ -26,6 +27,6 @@ public interface ImageSource {
      */
     ImageData getImageData(final String imageId) throws IllegalArgumentException;
 
-    ImageSource DEFAULT = new DefaultImageSource();
+    ImageSource DEFAULT = new DataUriImageSource();
 
 }

@@ -30,7 +30,7 @@ Alternatively, you can provide your own template PowerPoint file, settings and i
         () -> new FileInputStream("/path/to/my/template.pptx"),
         // reserve 8% of the top of the page (e.g. for logos etc.)
         () -> new TemplateSettings(new Anchor(0, 0.08, 1, 0.92)),
-        new DefaultImageSource() {
+        new WebAndDataUriImageSource() {
             @Override
             public boolean allowHttpURI(final URI uri) {
                 // deny all external HTTP URLs to prevent malicious users from using this as an open proxy
@@ -53,8 +53,10 @@ The template must consist of two slides in the following order:
 You can see an example template in [template.pptx](src/main/resources/com/hp/autonomy/frontend/reports/powerpoint/templates/template.pptx), and an example of embedding your logo into the default master slide in [validTemplateWithLogo.pptx](src/test/resources/com/hp/autonomy/frontend/reports/powerpoint/validTemplateWithLogo.pptx).
 
 The image source controls how image identifiers are converted to images to be embedded into the PowerPoint file. 
-The default implementation (DefaultImageSource) embeds base64-encoded images directly, and will download HTTP and HTTPS URLs for embedding (since PowerPoint doesn't allow external image links).
-It requires that all HTTP/HTTPS URLs end with a '.jpeg', '.jpg', '.png' or '.gif' extension to mitigate attacks from malicious users using it as an open proxy; you may want to override the allowHttpURI() function as above if you have a list of sites to whitelist. 
+The default implementation (DataUriImageSource) embeds base64-encoded images directly.
+
+You can use WebAndDataUriImageSource instead if you also want to allow downloading HTTP and HTTPS URLs for embedding (since PowerPoint doesn't allow external image links).
+By default it requires that all HTTP/HTTPS URLs end with a '.jpeg', '.jpg', '.png' or '.gif' extension to mitigate attacks from malicious users using it as an open proxy; you may want to override the allowHttpURI() function as above if you have a list of sites to whitelist. 
 
 ### Using the service
 

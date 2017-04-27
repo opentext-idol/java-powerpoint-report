@@ -46,7 +46,7 @@ public class PowerPointServiceImplTest {
             TemplateSource.DEFAULT,
             // Keep 1% of left and right margin free, and 2% of top and bottom margin free
             () -> new TemplateSettings(new Anchor(0.01, 0.02, 0.98, 0.96)),
-            new DefaultImageSource() {
+            new WebAndDataUriImageSource() {
                 @Override
                 public ImageData getImageData(final String imageId) throws IllegalArgumentException {
                     return JPEG_REFERENCE_ID.equals(imageId)
