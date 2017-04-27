@@ -14,6 +14,16 @@ See https://hpe-idol.github.io/java-powerpoint-report/ for [project information]
 
 ## Usage
 
+### Importing
+
+You can import this library from Maven by including it in your pom.xml.
+
+    <dependency>
+        <groupId>com.hp.autonomy.frontend.reports.powerpoint</groupId>
+        <artifactId>powerpoint-report</artifactId>
+        <version>1.0.1-SNAPSHOT</version>
+    </dependency>
+
 ### Creating a service
 
 The primary interface to working with this API is the [```PowerPointService```](src/main/java/com/hp/autonomy/frontend/reports/powerpoint/PowerPointService.java) interface, which is implemented in  [```PowerPointServiceImpl```](src/main/java/com/hp/autonomy/frontend/reports/powerpoint/PowerPointServiceImpl.java). 
