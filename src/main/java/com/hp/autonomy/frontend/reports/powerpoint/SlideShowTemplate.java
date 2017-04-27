@@ -43,7 +43,7 @@ class SlideShowTemplate {
 
     SlideShowTemplate(final InputStream inputStream) throws TemplateLoadException {
         try {
-            // There should be a chart in slide 1 and a chart in slide 2
+            // There should be a doughnut chart in slide 1 and a scatterplot chart in slide 2
             pptx = new XMLSlideShow(inputStream);
 
             final List<XSLFSlide> slides = pptx.getSlides();
@@ -104,12 +104,12 @@ class SlideShowTemplate {
     }
 
     /**
-     * Creates a new clone of the graph chart XML from the first slide, for inclusion into a slide's shapes.
+     * Creates a new clone of the scatterplot chart XML from the second slide, for inclusion into a slide's shapes.
      * @param relId the relation id to the chart.
      * @param shapeId the shape id of the new shape.
      * @param shapeName the name of your choice for the shape.
      * @param anchor where the shape should be positioned on screen, or null to use the same position as the cloned chart.
-     * @return a new clone of the graph chart XML.
+     * @return a new clone of the scatterplot chart XML.
      */
     CTGraphicalObjectFrame getGraphChartShapeXML(final String relId, final int shapeId, final String shapeName, final Rectangle2D.Double anchor) {
         return cloneShapeXML(graphChart.getRight(), relId, shapeId, shapeName, anchor);

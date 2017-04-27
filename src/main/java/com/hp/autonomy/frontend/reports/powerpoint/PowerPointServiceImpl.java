@@ -138,14 +138,14 @@ public class PowerPointServiceImpl implements PowerPointService {
     /** The source for template settings, like anchor points etc. */
     private final TemplateSettingsSource pptxSettings;
 
-    /** The image source for converting HTTP/HTTPS URLs to image data. */
+    /** The image source for converting image identifiers to image data. */
     private final ImageSource imageSource;
 
     /**
      * Constructor for the PowerPointServiceImpl, allowing you to provide your own template and settings.
      * @param pptxTemplate what template .pptx file to use.
      * @param pptxSettings what template settings to use.
-     * @param imageSource what image source to use.
+     * @param imageSource what image source to use for converting image identifiers to image data.
      */
     public PowerPointServiceImpl(final TemplateSource pptxTemplate, final TemplateSettingsSource pptxSettings, final ImageSource imageSource) {
         this.pptxTemplate = pptxTemplate;
@@ -155,6 +155,7 @@ public class PowerPointServiceImpl implements PowerPointService {
 
     /**
      * Constructor for the PowerPointServiceImpl, allowing you to provide your own template and settings.
+     * This uses the default ImageSource implementation which only allows base64-encoded data URIs as images.
      * @param pptxTemplate what template .pptx file to use.
      * @param pptxSettings what template settings to use.
      */
@@ -164,6 +165,7 @@ public class PowerPointServiceImpl implements PowerPointService {
 
     /**
      * Constructor which uses the default template and default settings, which don't have any logos or margins reserved.
+     * This uses the default ImageSource implementation which only allows base64-encoded data URIs as images.
      */
     public PowerPointServiceImpl() {
         this(TemplateSource.DEFAULT, TemplateSettingsSource.DEFAULT, ImageSource.DEFAULT);
@@ -1228,7 +1230,7 @@ public class PowerPointServiceImpl implements PowerPointService {
 
         // In the template, we have two <c:scatterChart> objects, one for the primary axis, one for the secondary.
         if (!useSecondaryAxis) {
-            // Discard the extra axes
+            // Discard the extra chart and its two axes.
             // OpenOffice is happy enough if you remove the scatterplot chart, but PowerPoint will complain it's a corrupt
             //   file and unhelpfully delete the entire chart when you choose 'repair' if any orphan axes remain.
             plotArea.removeScatterChart(1);
@@ -1275,9 +1277,9 @@ public class PowerPointServiceImpl implements PowerPointService {
     }
 
     /**
-     * Utility function to update a chart line series.
+     * Utility function to update a scatterplot line's data series.
      * @param data the datagraph data.
-     * @param sheet the Excel sheet which contains corresponding data from the line series.
+     * @param sheet the Excel sheet which contains corresponding data from the scatterplot data series.
      * @param seriesIdx the index of the data in the dategraph data.
      * @param series the XML object representing the series in the chart.
      */

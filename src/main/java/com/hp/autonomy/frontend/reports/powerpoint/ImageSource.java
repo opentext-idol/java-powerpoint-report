@@ -11,8 +11,9 @@ package com.hp.autonomy.frontend.reports.powerpoint;
  *   to uniquely identify your images, you could provide your own custom ImageSource class to convert your compact image
  *   identifiers into actual image data; which would save some round-trip data.
  *
- * If you have a mix of HTTP/HTTPs links and data uris, you can use WebAndDataUriImageSource; you may want to override
- *   its default whitelist, which only allows URLs with a path which ends with '.jpeg', '.jpg', '.png' or '.gif'.
+ * If you have a mix of HTTP/HTTPs links and data uris, you can use WebAndDataUriImageSource. You may want to override
+ *   WebAndDataUriImageSource.allowHttpURI which only allows URL paths ending in '.jpeg', '.jpg', '.png' or '.gif'
+ *   with your own whitelist.
  *
  *  @see DataUriImageSource
  *  @see WebAndDataUriImageSource
