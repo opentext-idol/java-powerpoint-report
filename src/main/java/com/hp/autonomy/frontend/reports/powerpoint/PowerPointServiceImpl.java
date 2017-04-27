@@ -1071,9 +1071,9 @@ public class PowerPointServiceImpl implements PowerPointService {
                     // Picture reuse is automatic
                     pictureData = addPictureData(imageSource, ppt, doc.getThumbnail());
                     // We reserve space for the picture, but we don't actually add it yet.
-                    // The reason is we may have to remove it later if it doesn't fit; but removing the picture
-                    //   would remove the pictureData as well which is a problem since pictureData can be shared
-                    //   between multiple pictures.
+                    // The reason is we may have to remove it later if it doesn't fit; but due to a quirk of OpenOffice,
+                    //   deleting the picture shape removes the pictureData as well; which is a problem since the
+                    //   pictureData can be shared between multiple pictures.
                     pictureAnchor = new Rectangle2D.Double(xCursor, yCursor + thumbnailOffset + thumbMargin, thumbW, thumbH);
 
                     // If there is enough horizontal space, put the text summary to the right of the thumbnail image,
