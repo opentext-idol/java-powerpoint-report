@@ -1063,14 +1063,18 @@ public class PowerPointServiceImpl implements PowerPointService {
 
             final XSLFTextParagraph contentPara = listEl.addNewTextParagraph();
 
-            XSLFPictureShape picture = null;
+            Rectangle2D.Double pictureAnchor = null;
+            XSLFPictureData pictureData = null;
 
             if (StringUtils.isNotBlank(doc.getThumbnail())) {
                 try {
-                    final XSLFPictureData pictureData = addPictureData(imageSource, ppt, doc.getThumbnail());
                     // Picture reuse is automatic
-                    picture = sl.createPicture(pictureData);
-                    picture.setAnchor(new Rectangle2D.Double(xCursor, yCursor + thumbnailOffset + thumbMargin, thumbW, thumbH));
+                    pictureData = addPictureData(imageSource, ppt, doc.getThumbnail());
+                    // We reserve space for the picture, but we don't actually add it yet.
+                    // The reason is we may have to remove it later if it doesn't fit; but removing the picture
+                    //   would remove the pictureData as well which is a problem since pictureData can be shared
+                    //   between multiple pictures.
+                    pictureAnchor = new Rectangle2D.Double(xCursor, yCursor + thumbnailOffset + thumbMargin, thumbW, thumbH);
 
                     // If there is enough horizontal space, put the text summary to the right of the thumbnail image,
                     //    otherwise put it under the thumbnail,
@@ -1111,8 +1115,8 @@ public class PowerPointServiceImpl implements PowerPointService {
             }
 
             double elHeight = Math.max(listEl.getTextHeight(), iconHeight);
-            if (picture != null) {
-                elHeight = Math.max(elHeight, picture.getAnchor().getMaxY() - yCursor);
+            if (pictureAnchor != null) {
+                elHeight = Math.max(elHeight, pictureAnchor.getMaxY() - yCursor);
             }
 
             yCursor += elHeight;
@@ -1124,18 +1128,17 @@ public class PowerPointServiceImpl implements PowerPointService {
                 if (docsOnPage > 1) {
                     // If we drew more than one list element on this page; and we exceeded the available space,
                     //   delete the last element's shapes and redraw it on the next page.
+                    // We don't have to remove the picture since we never added it.
                     sl.removeShape(listEl);
                     if (icon != null) {
                         sl.removeShape(icon);
                     }
 
-                    if (picture != null) {
-                        // Technically we want to remove the shape, but that also removes the related image data,
-                        //   which will be shared with other images; causing problems when trying to render them.
-                        // Workaround is to just hide the image out of view.
-                        picture.setAnchor(new Rectangle2D.Double(-1, -1, 0.1, 0.1));
-                    }
                     --docIdx;
+                }
+                else if(pictureAnchor != null) {
+                    // We've confirmed we need the picture, add it.
+                    sl.createPicture(pictureData).setAnchor(pictureAnchor);
                 }
 
                 sl = null;
@@ -1146,6 +1149,11 @@ public class PowerPointServiceImpl implements PowerPointService {
             }
             else {
                 yCursor += listItemMargin;
+
+                if(pictureAnchor != null) {
+                    // We've confirmed we need the picture, add it.
+                    sl.createPicture(pictureData).setAnchor(pictureAnchor);
+                }
             }
         }
     }
