@@ -1,4 +1,4 @@
-echo $GPG_KEY_ID | cut -c 1-2 ; echo ...; echo $GPG_KEY_ID | cut -c 3-
+echo $GPG_KEYID | cut -c 1-2 ; echo ...; echo $GPG_KEYID | cut -c 3-
 
 if [[ ${TRAVIS_BRANCH} == 'master' ]]
 then
