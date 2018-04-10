@@ -871,11 +871,10 @@ public class PowerPointServiceImpl implements PowerPointService {
 
                 final XSLFFreeformShape freeform = slide.createFreeform();
                 freeform.setPath(path);
-                freeform.setStrokeStyle(2);
+                freeform.setStrokeStyle(0.5);
                 // There's a 0.5 alpha transparency on the stroke, and a 0.2 alpha transparency on the polygon fill.
                 freeform.setLineColor(transparentColor(color, 128));
                 freeform.setFillColor(transparentColor(color, 51));
-
 
                 if(StringUtils.isNotEmpty(polygon.getText())) {
                     final PackageRelationship rel = freeform.getSheet().getPackagePart().addRelationship(slide.getPackagePart().getPartName(),
