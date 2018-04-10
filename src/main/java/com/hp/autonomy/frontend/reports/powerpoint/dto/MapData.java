@@ -28,6 +28,11 @@ public class MapData implements ComposableElement {
      */
     private Marker[] markers;
 
+    /**
+     * Array of polygons
+     */
+    private Polygon[] polygons;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -53,6 +58,25 @@ public class MapData implements ComposableElement {
 
         /** whether a cluster marker is faded.  */
         private boolean fade;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Polygon {
+
+        /**
+         * List of lists of (x,y) points, represented as fractions between 0 and 1.
+         * The points should follow even-odd winding order, see the WKT spec for details.
+         * */
+        private double[][] points;
+
+        /** optional text description of the marker, will be used as a on-hover tooltip in PowerPoint when presenting on non-cluster markers. */
+        private String text;
+
+        /** colour of the marker, expressed as a hexadecimal string e.g. '#FF0000'. */
+        private String color;
+
     }
 }
 

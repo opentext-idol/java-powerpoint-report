@@ -791,7 +791,7 @@ public class PowerPointServiceImpl implements PowerPointService {
         }
 
         final XSLFPictureData picture = addPictureData(imageSource, ppt, image);
-        addMap(sl, remainingSpace(pageAnchor, textHeight), picture, map.getMarkers());
+        addMap(sl, remainingSpace(pageAnchor, textHeight), picture, map.getMarkers(), map.getPolygons());
 
         return ppt;
     }
@@ -815,9 +815,10 @@ public class PowerPointServiceImpl implements PowerPointService {
      * @param anchor bounding rectangle to draw onto, in PowerPoint coordinates.
      * @param picture the picture data.
      * @param markers an array of markers to draw over the map.
+     * @param polygons
      * @return the picture shape object added to the slide.
      */
-    private static XSLFPictureShape addMap(final XSLFSlide slide, final Rectangle2D.Double anchor, final XSLFPictureData picture, final Marker[] markers) {
+    private static XSLFPictureShape addMap(final XSLFSlide slide, final Rectangle2D.Double anchor, final XSLFPictureData picture, final Marker[] markers, final MapData.Polygon[] polygons) {
         double tgtW = anchor.getWidth(),
                tgtH = anchor.getHeight();
 
@@ -837,6 +838,56 @@ public class PowerPointServiceImpl implements PowerPointService {
         final double offsetX = anchor.getMinX() + 0.5 * (anchor.getWidth() - tgtW),
                      offsetY = anchor.getMinY();
         canvas.setAnchor(new Rectangle2D.Double(offsetX, offsetY, tgtW, tgtH));
+
+        if(polygons != null) {
+            for(MapData.Polygon polygon : polygons) {
+                final Color color = Color.decode(polygon.getColor());
+                final double[][] shapes = polygon.getPoints();
+                // The ESRI spec version 1.2.1 from http://www.opengeospatial.org/standards/sfa has section 6.1.11.1,
+                //    which defines polygons as follows:
+                /// A Polygon is a planar Surface defined by 1 exterior boundary and 0 or more interior boundaries.
+                //    Each interior boundary defines a hole in the Polygon. A Triangle is a polygon with 3 distinct,
+                //    non-collinear vertices and no interior boundary.
+                /// The exterior boundary LinearRing defines the “top” of the surface which is the side of the surface
+                //    from which the exterior boundary appears to traverse the boundary in a counter clockwise direction.
+                //    The interior LinearRings will have the opposite orientation, and appear as clockwise
+                //    when viewed from the “top”
+                // so it's even-odd winding (whereas the Path2D default is non-zero-winding).
+                final Path2D.Double path = new Path2D.Double(Path2D.WIND_EVEN_ODD);
+
+                for(final double[] points : shapes) {
+                    for(int ii = 0; ii < points.length; ii += 2) {
+                        final double x1 = offsetX + points[ii] * tgtW;
+                        final double y1 = offsetY + points[ii + 1] * tgtH;
+                        if(ii == 0) {
+                            path.moveTo(x1, y1);
+                        }
+                        else {
+                            path.lineTo(x1, y1);
+                        }
+                    }
+                    path.closePath();
+                }
+
+                final XSLFFreeformShape freeform = slide.createFreeform();
+                freeform.setPath(path);
+                freeform.setStrokeStyle(2);
+                // There's a 0.5 alpha transparency on the stroke, and a 0.2 alpha transparency on the polygon fill.
+                freeform.setLineColor(transparentColor(color, 128));
+                freeform.setFillColor(transparentColor(color, 51));
+
+
+                if(StringUtils.isNotEmpty(polygon.getText())) {
+                    final PackageRelationship rel = freeform.getSheet().getPackagePart().addRelationship(slide.getPackagePart().getPartName(),
+                            TargetMode.INTERNAL, XSLFRelation.SLIDE.getRelation());
+                    // We create a hyperlink which links back to this slide; so we get hover-over-detail-text on the polygon
+                    final CTHyperlink link = ((CTShape) freeform.getXmlObject()).getNvSpPr().getCNvPr().addNewHlinkClick();
+                    link.setTooltip(polygon.getText());
+                    link.setId(rel.getId());
+                    link.setAction("ppaction://hlinksldjump");
+                }
+            }
+        }
 
         for(Marker marker : markers) {
             final Color color = Color.decode(marker.getColor());
@@ -1504,7 +1555,7 @@ public class PowerPointServiceImpl implements PowerPointService {
             }
             else if (data instanceof MapData) {
                 final MapData mapData = (MapData) data;
-                addMap(slide, anchor, addPictureData(imageSource, ppt, mapData.getImage()), mapData.getMarkers());
+                addMap(slide, anchor, addPictureData(imageSource, ppt, mapData.getImage()), mapData.getMarkers(), mapData.getPolygons());
             }
             else if (data instanceof SunburstData) {
                 addSunburst(template, slide, anchor, (SunburstData) data, shapeId, "relId" + shapeId);
