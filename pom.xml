@@ -12,15 +12,15 @@
 
     <groupId>com.hp.autonomy.frontend.reports.powerpoint</groupId>
     <artifactId>powerpoint-report</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
-    <name>HPE Autonomy PowerPoint Report API</name>
+    <name>Micro Focus Autonomy PowerPoint Report API</name>
     <description>Library to create PowerPoint presentations from Find visualizations.</description>
     <url>https://github.com/hpe-idol/java-powerpoint-report/</url>
 
     <organization>
-        <name>Hewlett Packard Enterprise Development, L.P.</name>
-        <url>http://www.hpe.com/</url>
+        <name>Micro Focus International plc.</name>
+        <url>http://www.microfocus.com/</url>
     </organization>
 
     <inceptionYear>2017</inceptionYear>
@@ -39,9 +39,9 @@
     <developers>
         <developer>
             <name>Tung Jin Chew</name>
-            <email>tung-jin.chew@hpe.com</email>
-            <organization>HPE</organization>
-            <organizationUrl>http://www.hpe.com</organizationUrl>
+            <email>tung-jin.chew@microfocus.com</email>
+            <organization>Micro Focus</organization>
+            <organizationUrl>http://www.microfocus.com/</organizationUrl>
         </developer>
     </developers>
 

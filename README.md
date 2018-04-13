@@ -1,4 +1,4 @@
-# HPE Autonomy PowerPoint Report API
+# Micro Focus Autonomy PowerPoint Report API
 
 [![Build Status](https://travis-ci.org/hpe-idol/java-powerpoint-report.svg?branch=master)](https://travis-ci.org/hpe-idol/java-powerpoint-report)
 
@@ -13,6 +13,16 @@ This repo uses git-flow. develop is the development branch. master is the last k
 See https://hpe-idol.github.io/java-powerpoint-report/ for [project information](https://hpe-idol.github.io/java-powerpoint-report/project-info.html) and [Javadoc](https://hpe-idol.github.io/java-powerpoint-report/apidocs/index.html).
 
 ## Usage
+
+### Importing
+
+You can import this library from Maven by including it in your pom.xml.
+
+    <dependency>
+        <groupId>com.hp.autonomy.frontend.reports.powerpoint</groupId>
+        <artifactId>powerpoint-report</artifactId>
+        <version>1.1.0</version>
+    </dependency>
 
 ### Creating a service
 
@@ -48,7 +58,10 @@ You can edit the master slide on your PowerPoint template e.g. to add your logo 
 The template must consist of two slides in the following order:
 
 1. a slide with a doughnut chart
-2. a slide with a xy scatterplot chart, with three data series: a time-based x-axis, a numeric primary y-axis, and a numeric secondary y-axis.
+2. a slide with a xy scatterplot chart, with three data series: 
+- a time-based x-axis
+- a numeric primary y-axis
+- a numeric secondary y-axis.
  
 You can see an example template in [template.pptx](src/main/resources/com/hp/autonomy/frontend/reports/powerpoint/templates/template.pptx), and an example of embedding your logo into the default master slide in [validTemplateWithLogo.pptx](src/test/resources/com/hp/autonomy/frontend/reports/powerpoint/validTemplateWithLogo.pptx).
 
@@ -126,6 +139,6 @@ In practice, if you're working with JSON data, it's probably easiest to use Jack
 ```
 
 ## License
-Copyright 2017 Hewlett Packard Enterprise Development LP
+Copyright 2017-2018 Micro Focus International plc.
 
 Licensed under the MIT License (the "License"); you may not use this project except in compliance with the License.
