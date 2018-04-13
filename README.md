@@ -1,4 +1,4 @@
-# HPE Autonomy PowerPoint Report API
+# Micro Focus Autonomy PowerPoint Report API
 
 [![Build Status](https://travis-ci.org/hpe-idol/java-powerpoint-report.svg?branch=master)](https://travis-ci.org/hpe-idol/java-powerpoint-report)
 
