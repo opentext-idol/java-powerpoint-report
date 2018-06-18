@@ -5,6 +5,6 @@
 
 /**
  * Provides an API to generate PowerPoint reports from visualization data.
- * @see <a href="https://github.com/hpe-idol/java-powerpoint-report/" target="_blank">README.md</a> for examples and usage instructions.
+ * @see <a href="https://github.com/microfocus-idol/java-powerpoint-report/" target="_blank">README.md</a> for examples and usage instructions.
  */
 package com.hp.autonomy.frontend.reports.powerpoint;

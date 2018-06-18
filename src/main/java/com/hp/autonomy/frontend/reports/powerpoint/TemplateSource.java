@@ -15,7 +15,7 @@ public interface TemplateSource {
     /**
      * This should return a new {@link InputStream} containing the PowerPoint template we'll use.
      * This method may be called multiple times (typically once per generated PowerPoint).
-     * The template has specific requirements, see <a href="https://github.com/hpe-idol/java-powerpoint-report/" target="_blank">README.md</a> for details.
+     * The template has specific requirements, see <a href="https://github.com/microfocus-idol/java-powerpoint-report/" target="_blank">README.md</a> for details.
      * @return stream containing the data for the PowerPoint template.
      * @throws IOException if there's an IO error.
      */
