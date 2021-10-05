@@ -32,9 +32,9 @@ import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.POIXMLDocumentPart;
-import org.apache.poi.POIXMLException;
 import org.apache.poi.hssf.util.CellReference;
+import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.ooxml.POIXMLException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -48,6 +48,7 @@ import org.apache.poi.sl.usermodel.TableCell;
 import org.apache.poi.sl.usermodel.TextParagraph;
 import org.apache.poi.sl.usermodel.TextShape;
 import org.apache.poi.sl.usermodel.VerticalAlignment;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -124,7 +125,7 @@ import org.openxmlformats.schemas.presentationml.x2006.main.impl.STTLTimeNodeRes
 
 import static com.hp.autonomy.frontend.reports.powerpoint.dto.ListData.Document;
 import static com.hp.autonomy.frontend.reports.powerpoint.dto.MapData.Marker;
-import static org.apache.poi.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
+import static org.apache.poi.ooxml.POIXMLTypeLoader.DEFAULT_XML_OPTIONS;
 
 /**
  * Default implementation of PowerPointService.
@@ -1395,7 +1396,8 @@ public class PowerPointServiceImpl implements PowerPointService {
             final CTNumRef timestampCatNumRef = series.getXVal().getNumRef();
             timestampCatNumRef.setF(new AreaReference(
                 new CellReference(sheetName, 1, 0, true, true),
-                new CellReference(sheetName, 1 + timestamps.length, 0, true, true)
+                new CellReference(sheetName, 1 + timestamps.length, 0, true, true),
+                SpreadsheetVersion.EXCEL2007
             ).formatAsString());
 
             final CTNumData timeStampCatNumCache = timestampCatNumRef.getNumCache();
@@ -1415,7 +1417,8 @@ public class PowerPointServiceImpl implements PowerPointService {
             final CTNumRef valuesNumRef = series.getYVal().getNumRef();
             valuesNumRef.setF(new AreaReference(
                 new CellReference(sheetName, 1, seriesIdx + 1, true, true),
-                new CellReference(sheetName, 1 + timestamps.length, seriesIdx + 1, true, true)
+                new CellReference(sheetName, 1 + timestamps.length, seriesIdx + 1, true, true),
+                SpreadsheetVersion.EXCEL2007
             ).formatAsString());
 
             final CTNumData valuesNumCache = valuesNumRef.getNumCache();

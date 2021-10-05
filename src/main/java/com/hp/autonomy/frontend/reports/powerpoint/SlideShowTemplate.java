@@ -12,7 +12,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.poi.POIXMLDocumentPart;
+import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFChart;
 import org.apache.poi.xslf.usermodel.XSLFGraphicFrame;
@@ -70,7 +70,7 @@ class SlideShowTemplate {
             pptx.removeSlide(1);
             pptx.removeSlide(0);
         }
-        catch(IOException e) {
+        catch(IOException|IllegalArgumentException e) {
             throw new TemplateLoadException("Error while loading slide show", e);
         }
     }
