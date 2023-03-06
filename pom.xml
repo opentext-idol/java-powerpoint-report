@@ -14,13 +14,13 @@
     <artifactId>powerpoint-report</artifactId>
     <version>1.2.0-SNAPSHOT</version>
 
-    <name>Micro Focus IDOL PowerPoint Report API</name>
+    <name>OpenText IDOL PowerPoint Report API</name>
     <description>Library to create PowerPoint presentations from Find visualizations.</description>
     <url>https://github.com/microfocus-idol/java-powerpoint-report/</url>
 
     <organization>
-        <name>Micro Focus International plc.</name>
-        <url>http://www.microfocus.com/</url>
+        <name>OpenText</name>
+        <url>https://www.opentext.com/</url>
     </organization>
 
     <inceptionYear>2017</inceptionYear>
@@ -39,9 +39,6 @@
     <developers>
         <developer>
             <name>Tung Jin Chew</name>
-            <email>tung-jin.chew@microfocus.com</email>
-            <organization>Micro Focus</organization>
-            <organizationUrl>http://www.microfocus.com/</organizationUrl>
         </developer>
     </developers>
 

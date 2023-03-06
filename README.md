@@ -1,4 +1,4 @@
-# Micro Focus IDOL PowerPoint Report API
+# OpenText IDOL PowerPoint Report API
 
 [![Build Status](https://travis-ci.org/microfocus-idol/java-powerpoint-report.svg?branch=master)](https://travis-ci.org/microfocus-idol/java-powerpoint-report)
 
@@ -139,6 +139,6 @@ In practice, if you're working with JSON data, it's probably easiest to use Jack
 ```
 
 ## License
-Copyright 2017-2018 Micro Focus International plc.
+Copyright 2017-2018 OpenText.
 
 Licensed under the MIT License (the "License"); you may not use this project except in compliance with the License.
