@@ -16,7 +16,7 @@
 
     <name>OpenText IDOL PowerPoint Report API</name>
     <description>Library to create PowerPoint presentations from Find visualizations.</description>
-    <url>https://github.com/microfocus-idol/java-powerpoint-report/</url>
+    <url>https://github.com/opentext-idol/java-powerpoint-report/</url>
 
     <organization>
         <name>OpenText</name>
@@ -26,14 +26,14 @@
     <inceptionYear>2017</inceptionYear>
 
     <scm>
-        <connection>scm:git:git@github.com:microfocus-idol/java-powerpoint-report.git</connection>
-        <developerConnection>scm:git:git@github.com:microfocus-idol/java-powerpoint-report.git</developerConnection>
-        <url>https://github.com/microfocus-idol/java-powerpoint-report/</url>
+        <connection>scm:git:git@github.com:opentext-idol/java-powerpoint-report.git</connection>
+        <developerConnection>scm:git:git@github.com:opentext-idol/java-powerpoint-report.git</developerConnection>
+        <url>https://github.com/opentext-idol/java-powerpoint-report/</url>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/microfocus-idol/java-powerpoint-report/issues</url>
+        <url>https://github.com/opentext-idol/java-powerpoint-report/issues</url>
     </issueManagement>
 
     <developers>

@@ -1,8 +1,6 @@
 # OpenText IDOL PowerPoint Report API
 
-[![Build Status](https://travis-ci.org/microfocus-idol/java-powerpoint-report.svg?branch=master)](https://travis-ci.org/microfocus-idol/java-powerpoint-report)
-
-Library to help generate PowerPoint reports; originally designed for the [Find UI](https://github.com/microfocus-idol/find). 
+Library to help generate PowerPoint reports; originally designed for the [Find UI](https://github.com/opentext-idol/find). 
 
 It renders various visualizations from Find into PowerPoint, e.g. a topic map, list, sunburst (only one level, as a doughnut chart), table, map and date graph as individual PowerPoint presentations. 
 
@@ -10,7 +8,7 @@ It also has a report API to generate a composite report consisting of multiple v
 
 This repo uses git-flow. develop is the development branch. master is the last known good branch.
 
-See https://microfocus-idol.github.io/java-powerpoint-report/ for [project information](https://microfocus-idol.github.io/java-powerpoint-report/project-info.html) and [Javadoc](https://microfocus-idol.github.io/java-powerpoint-report/apidocs/index.html).
+See https://opentext-idol.github.io/java-powerpoint-report/ for [project information](https://opentext-idol.github.io/java-powerpoint-report/project-info.html) and [Javadoc](https://opentext-idol.github.io/java-powerpoint-report/apidocs/index.html).
 
 ## Usage
 

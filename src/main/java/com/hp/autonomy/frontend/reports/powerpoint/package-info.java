@@ -1,10 +1,19 @@
 /*
- * Copyright 2017-2018 Micro Focus International plc.
- * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
+ * Copyright 2017-2018 Open Text.
+ *
+ * Licensed under the MIT License (the "License"); you may not use this file
+ * except in compliance with the License.
+ *
+ * The only warranties for products and services of Open Text and its affiliates
+ * and licensors ("Open Text") are as may be set forth in the express warranty
+ * statements accompanying such products and services. Nothing herein should be
+ * construed as constituting an additional warranty. Open Text shall not be
+ * liable for technical or editorial errors or omissions contained herein. The
+ * information contained herein is subject to change without notice.
  */
 
 /**
  * Provides an API to generate PowerPoint reports from visualization data.
- * @see <a href="https://github.com/microfocus-idol/java-powerpoint-report/" target="_blank">README.md</a> for examples and usage instructions.
+ * @see <a href="https://github.com/opentext-idol/java-powerpoint-report/" target="_blank">README.md</a> for examples and usage instructions.
  */
 package com.hp.autonomy.frontend.reports.powerpoint;
