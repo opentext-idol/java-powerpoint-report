@@ -41,7 +41,6 @@ import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.poi.ooxml.POIXMLException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -61,6 +60,7 @@ import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFAutoShape;
@@ -329,7 +329,7 @@ public class PowerPointServiceImpl implements PowerPointService {
                 // The nodes which aren't leaf nodes can be clicked on to hide them so you can see the nodes underneath.
                 // This only works in PowerPoint; OpenOffice doesn't seem to support it. OpenOffice has its own syntax
                 //   to do something similar, but we don't use it since PowerPoint treats it as corrupt.
-                final String shapeId = Integer.toString(shape.getShapeId());
+                final int shapeId = shape.getShapeId();
                 final CTSlide slXML = slide.getXmlObject();
 
                 final CTTimeNodeList childTnLst;
