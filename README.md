@@ -19,7 +19,7 @@ You can import this library from Maven by including it in your pom.xml.
     <dependency>
         <groupId>com.hp.autonomy.frontend.reports.powerpoint</groupId>
         <artifactId>powerpoint-report</artifactId>
-        <version>2.0.0</version>
+        <version>2.1.0-SNAPSHOT</version>
     </dependency>
 
 ### Creating a service
